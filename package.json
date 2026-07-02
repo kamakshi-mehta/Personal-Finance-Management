@@ -1,0 +1,19 @@
+{
+  "name": "mern-finance-app",
+  "version": "1.0.0",
+  "description": "MERN + FastAPI Personal Finance Management App",
+  "main": "index.js",
+  "scripts": {
+    "setup:backend": "npm install --prefix backend",
+    "setup:frontend": "npm install --legacy-peer-deps --prefix frontend",
+    "setup:ai": "cd ai && python -m venv .venv && .venv\\Scripts\\pip install -r requirements.txt",
+    "setup": "npm run setup:backend && npm run setup:frontend && npm run setup:ai",
+    "start:backend": "npm run dev --prefix backend",
+    "start:frontend": "npm run dev --prefix frontend",
+    "start:ai": "cd ai && .venv\\Scripts\\uvicorn main:app --reload --port 8000",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" \"npm run start:ai\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
