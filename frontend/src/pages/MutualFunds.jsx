@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Landmark, TrendingUp, Calendar, ArrowUpRight, Plus, Trash2 } from 'lucide-react';
+import { Landmark, TrendingUp, Calendar, ArrowUpRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const MutualFunds = () => {
   const [activeSips, setActiveSips] = useState([
@@ -155,6 +155,28 @@ const MutualFunds = () => {
             Accumulated monthly investment commitment
           </p>
         </div>
+      </div>
+
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          SIP & Mutual Fund Guidelines
+        </h3>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>Compounding Effect</strong>: Start early to allow your <strong>returns to reinvest</strong> and grow exponentially over time.
+          </li>
+          <li className="guideline-item">
+            <strong>Rupee Cost Averaging</strong>: Monthly SIPs buy <strong>more units when prices are low</strong> and fewer units when they are high.
+          </li>
+          <li className="guideline-item">
+            <strong>Expense Ratio</strong>: Choose mutual funds with a <strong>lower expense ratio</strong> to keep more of your earnings.
+          </li>
+          <li className="guideline-item">
+            <strong>Lock-in Period</strong>: Check if the fund has an <strong>exit load</strong> or is a tax-saving ELSS fund with a <strong>3-year lock-in</strong>.
+          </li>
+        </ul>
       </div>
 
       <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">My Active SIPs</h3>

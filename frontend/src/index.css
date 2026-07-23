@@ -217,3 +217,20 @@ h1, h2, h3, h4, h5, h6 {
 .ai-simulation-card {
   @apply bg-gradient-to-r from-blue-50/50 via-white to-slate-100/50 p-6 rounded-2xl border border-slate-200/80 flex flex-col space-y-3 shadow-sm;
 }
+
+/* Guidelines Panels */
+.guideline-box {
+  @apply bg-blue-50/30 border border-blue-100/80 rounded-2xl p-6 shadow-xs backdrop-blur-xs space-y-3;
+}
+
+.guideline-title {
+  @apply text-sm font-bold text-blue-900 uppercase tracking-wider flex items-center gap-2;
+}
+
+.guideline-list {
+  @apply space-y-2.5 text-xs text-slate-600 list-disc pl-4;
+}
+
+.guideline-item {
+  @apply leading-relaxed;
+}

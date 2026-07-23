@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Landmark, Percent, Calendar, Plus, Trash2, ArrowUpRight } from 'lucide-react';
+import { Landmark, Percent, Calendar, Plus, Trash2, ArrowUpRight, Lightbulb } from 'lucide-react';
 
 const FixedDeposits = () => {
   const [activeFds, setActiveFds] = useState([
@@ -172,6 +172,28 @@ const FixedDeposits = () => {
             Accrued interest across all active accounts
           </p>
         </div>
+      </div>
+
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          FD Investing Guidelines
+        </h3>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>Guaranteed Returns</strong>: FDs provide <strong>assured, risk-free interest rates</strong> locked in for the entire tenure.
+          </li>
+          <li className="guideline-item">
+            <strong>Premature Withdrawal</strong>: Withdrawing before maturity usually incurs a <strong>penalty rate reduction</strong>.
+          </li>
+          <li className="guideline-item">
+            <strong>Tax Implications</strong>: Interest earned is taxable under <strong>TDS (Tax Deducted at Source)</strong> if it exceeds annual limits.
+          </li>
+          <li className="guideline-item">
+            <strong>Inflation Risk</strong>: FD interest rates might not beat <strong>rising inflation rates</strong> over long periods.
+          </li>
+        </ul>
       </div>
 
       <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">My Active Fixed Deposits</h3>

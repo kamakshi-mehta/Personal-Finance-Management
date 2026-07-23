@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wallet, PiggyBank, Landmark, Percent, Plus, Edit, Trash2 } from 'lucide-react';
+import { Wallet, PiggyBank, Landmark, Percent, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const BudgetPlanning = () => {
   // 1. Regular spending categories
@@ -154,6 +154,28 @@ const BudgetPlanning = () => {
             Remaining unspent spending allowance: ₹{Math.max(0, totalRegularLimit - totalRegularSpent).toLocaleString('en-IN')}.00
           </p>
         </div>
+      </div>
+
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          Budgeting & Saving Guidelines
+        </h3>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>50/30/20 Rule</strong>: Allocate <strong>50% to needs</strong>, <strong>30% to wants</strong>, and <strong>20% directly to savings or debt payment</strong>.
+          </li>
+          <li className="guideline-item">
+            <strong>Zero-Based Budgeting</strong>: Give every single Rupee a <strong>specific purpose or destination</strong> at the start of the month.
+          </li>
+          <li className="guideline-item">
+            <strong>Fixed vs. Variable Costs</strong>: Identify <strong>fixed commitments (EMIs, SIPs)</strong> first, then adjust variable spending.
+          </li>
+          <li className="guideline-item">
+            <strong>Track Micro-expenses</strong>: Small daily transactions accumulate rapidly and can <strong>silently disrupt your monthly budget</strong>.
+          </li>
+        </ul>
       </div>
 
       {/* Grid of Sections */}

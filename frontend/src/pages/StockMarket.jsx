@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Percent, ArrowUpRight, Plus, Trash2 } from 'lucide-react';
+import { TrendingUp, Percent, ArrowUpRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const StockMarket = () => {
   const [stockHoldings, setStockHoldings] = useState([
@@ -179,6 +179,28 @@ const StockMarket = () => {
         </div>
       </div>
 
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          Equity Investing Guidelines
+        </h3>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>Risk Tolerance</strong>: Equities offer high potential returns but come with <strong>high market volatility</strong>.
+          </li>
+          <li className="guideline-item">
+            <strong>Fundamental Analysis</strong>: Research a company's <strong>debt, earnings growth, and management quality</strong> before buying.
+          </li>
+          <li className="guideline-item">
+            <strong>Long-term Outlook</strong>: Avoid panic-selling during market dips; focus on <strong>long-term wealth creation</strong>.
+          </li>
+          <li className="guideline-item">
+            <strong>Stop-Loss Strategy</strong>: Define a <strong>maximum tolerable loss threshold</strong> to protect your trading capital.
+          </li>
+        </ul>
+      </div>
+
       <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Stock Holdings</h3>
 
       <div className="table-container">
@@ -203,7 +225,7 @@ const StockMarket = () => {
                 <td className="p-4 text-sm text-slate-700">{stock.qty}</td>
                 <td className="p-4 text-sm text-slate-700">₹{stock.avgPrice.toLocaleString('en-IN')}</td>
                 <td className="p-4 text-sm text-slate-700 font-semibold">₹{stock.currentPrice.toLocaleString('en-IN')}</td>
-                <td className={`p-4 text-sm font-semibold ${stock.pnl.startsWith('+') ? 'text-blue-600' : 'text-sky-600'}`}>
+                <td className={`p-4 text-sm font-semibold \${stock.pnl.startsWith('+') ? 'text-blue-600' : 'text-sky-600'}`}>
                   {stock.pnl}
                 </td>
                 <td className="p-4 text-right">

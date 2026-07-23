@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, Send, Sparkles, Terminal, RefreshCw, Layers } from 'lucide-react';
+import { Cpu, Sparkles, Terminal, RefreshCw, Layers, Lightbulb } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 
 const AiInsights = () => {
@@ -100,15 +100,23 @@ const AiInsights = () => {
         </div>
       </div>
 
-      {/* Simple AI Insight simulation */}
-      <div className="ai-simulation-card">
-        <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-          <Terminal className="text-blue-600 w-4.5 h-4.5" />
-          What does this AI do?
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          Financial Model Guidelines
         </h3>
-        <p className="text-xs text-slate-500">
-          Our AI service will analyze your spending habits, help you save more money, and give you smart budget recommendations. In the next phase, we will connect this AI engine directly with your database to give you live, personalized budget suggestions.
-        </p>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>Algorithmic Projections</strong>: AI estimations are based on <strong>historical spending trends</strong> and current balance logs.
+          </li>
+          <li className="guideline-item">
+            <strong>Behavioral Adaptability</strong>: If spending patterns fluctuate, the AI model takes <strong>several days to recalculate</strong> new baseline habits.
+          </li>
+          <li className="guideline-item">
+            <strong>Security & Feed Audits</strong>: Always verify <strong>active secure API connections</strong> to ensure calculations match real-time balances.
+          </li>
+        </ul>
       </div>
     </div>
   );

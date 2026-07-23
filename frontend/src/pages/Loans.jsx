@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wallet, Calendar, ArrowDownRight, Plus, Trash2 } from 'lucide-react';
+import { Wallet, Calendar, ArrowDownRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const Loans = () => {
   const [activeLoans, setActiveLoans] = useState([
@@ -171,6 +171,28 @@ const Loans = () => {
             Accumulated monthly installment dues
           </p>
         </div>
+      </div>
+
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          Borrowing & Liability Guidelines
+        </h3>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>Debt-to-Income Ratio</strong>: Keep total monthly EMI payouts below <strong>35% to 40% of your net income</strong>.
+          </li>
+          <li className="guideline-item">
+            <strong>Good Debt vs. Bad Debt</strong>: Prioritize appreciating assets like <strong>home loans</strong> over depreciating assets like <strong>personal/car loans</strong>.
+          </li>
+          <li className="guideline-item">
+            <strong>Credit Score</strong>: Pay EMIs on time to maintain a <strong>high credit score (750+)</strong> for lower future loan rates.
+          </li>
+          <li className="guideline-item">
+            <strong>Prepayment Clauses</strong>: Check if the bank charges <strong>prepayment penalties</strong> on floating or fixed rate loans.
+          </li>
+        </ul>
       </div>
 
       <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Active Liabilities</h3>

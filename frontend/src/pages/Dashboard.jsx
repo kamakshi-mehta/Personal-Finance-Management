@@ -1,5 +1,5 @@
 import React from 'react';
-import { IndianRupee, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { IndianRupee, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, Lightbulb } from 'lucide-react';
 
 const Dashboard = () => {
   return (
@@ -66,9 +66,23 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* Demo note */}
-      <div className="demo-note-box">
-        Note: The amounts shown above are example figures. Check the connection status bar or visit the AI page to verify live connections.
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          General Wealth Rules
+        </h3>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>Emergency Fund</strong>: Maintain at least <strong>6 months of expenses</strong> in liquid accounts before committing capital.
+          </li>
+          <li className="guideline-item">
+            <strong>Diversification</strong>: Spread assets across <strong>equities, mutual funds, and fixed deposits</strong> to lower exposure.
+          </li>
+          <li className="guideline-item">
+            <strong>Asset Allocation</strong>: Align investments to your <strong>age, risk profile, and long-term financial milestones</strong>.
+          </li>
+        </ul>
       </div>
     </div>
   );

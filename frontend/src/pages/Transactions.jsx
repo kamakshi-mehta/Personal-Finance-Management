@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, ArrowDownRight, ShieldCheck, ShoppingCart, Plus, Trash2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, ShieldCheck, ShoppingCart, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const Transactions = () => {
   const [mockTransactions, setMockTransactions] = useState([
@@ -123,6 +123,25 @@ const Transactions = () => {
           </div>
         </form>
       )}
+
+      {/* Guidelines Panel */}
+      <div className="guideline-box">
+        <h3 className="guideline-title">
+          <Lightbulb className="w-4 h-4 text-blue-700" />
+          Ledger & Audit Guidelines
+        </h3>
+        <ul className="guideline-list">
+          <li className="guideline-item">
+            <strong>Daily Audits</strong>: Review transactions daily to <strong>detect unauthorized charges</strong> or banking errors immediately.
+          </li>
+          <li className="guideline-item">
+            <strong>Categorize Outflows</strong>: Assigning categories lets you see <strong>exact spending leaks</strong> at the end of the month.
+          </li>
+          <li className="guideline-item">
+            <strong>Save Invoices</strong>: Store receipts for <strong>business claims, warranties, or tax deductions</strong> online.
+          </li>
+        </ul>
+      </div>
 
       <div className="table-container">
         <table className="w-full text-left border-collapse">
