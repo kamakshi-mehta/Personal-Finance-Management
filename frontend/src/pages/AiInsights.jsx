@@ -13,14 +13,14 @@ const AiInsights = () => {
       const bRes = await axiosClient.get('/health');
       setBackendResponse(bRes.data);
     } catch (err) {
-      setBackendResponse({ error: 'Backend Offline', message: err.message });
+      setBackendResponse({ error: 'Ledger Offline', message: err.message });
     }
 
     try {
       const aRes = await axiosClient.get('/ai-status');
       setAiResponse(aRes.data);
     } catch (err) {
-      setAiResponse({ error: 'AI Microservice Offline', message: err.message });
+      setAiResponse({ error: 'Risk Analyst Offline', message: err.message });
     }
     setLoading(false);
   };
@@ -34,10 +34,10 @@ const AiInsights = () => {
       <div>
         <h2 className="ai-section-title">
           <Cpu className="text-blue-600 w-7 h-7" />
-          AI Microservice & System Status
+          AI Risk Assessments & Portfolios
         </h2>
         <p className="text-slate-500 text-sm mt-1">
-          Verify data communication flow: Frontend (Vite) ⇄ Backend (Express) ⇄ AI Service (FastAPI).
+          Audit real-time communication feeds between your accounts, ledgers, and automated AI analysis models.
         </p>
       </div>
 
@@ -48,7 +48,7 @@ const AiInsights = () => {
           className="test-conn-button"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          Test System Communication
+          Retrieve Real-time Risk Assessments
         </button>
       </div>
 
@@ -58,20 +58,20 @@ const AiInsights = () => {
           <div className="response-card-header">
             <span className="response-card-title">
               <Layers className="text-blue-500 w-4 h-4" />
-              Express Backend Health Check
+              Core Ledger Database Feed (MERN)
             </span>
             <span className="response-badge-express">
-              GET /api/health
+              Active Feed
             </span>
           </div>
 
           <div className="response-json-box">
             {loading ? (
-              <span className="text-slate-500 animate-pulse">Requesting backend...</span>
+              <span className="text-slate-500 animate-pulse">Querying ledger database...</span>
             ) : backendResponse ? (
               <pre className="w-full text-left">{JSON.stringify(backendResponse, null, 2)}</pre>
             ) : (
-              <span className="text-slate-500">No data. Click Test Connection to initiate.</span>
+              <span className="text-slate-500">Asset data empty. Query the risk engine to fetch status.</span>
             )}
           </div>
         </div>
@@ -81,20 +81,20 @@ const AiInsights = () => {
           <div className="response-card-header">
             <span className="response-card-title">
               <Sparkles className="text-blue-500 w-4 h-4" />
-              FastAPI AI Communication Check
+              AI Predictive Growth Insights
             </span>
             <span className="response-badge-fastapi">
-              GET /api/ai-status
+              Active Risk Models
             </span>
           </div>
 
           <div className="response-json-box">
             {loading ? (
-              <span className="text-slate-500 animate-pulse">Pinging FastAPI via Express...</span>
+              <span className="text-slate-500 animate-pulse">Simulating market models via AI engine...</span>
             ) : aiResponse ? (
               <pre className="w-full text-left">{JSON.stringify(aiResponse, null, 2)}</pre>
             ) : (
-              <span className="text-slate-500">No data. Click Test Connection to initiate.</span>
+              <span className="text-slate-500">Asset data empty. Query the risk engine to fetch status.</span>
             )}
           </div>
         </div>
@@ -104,10 +104,10 @@ const AiInsights = () => {
       <div className="ai-simulation-card">
         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
           <Terminal className="text-blue-600 w-4.5 h-4.5" />
-          AI Microservice Capabilities
+          AI Asset Allocation Engine
         </h3>
         <p className="text-xs text-slate-500">
-          The FastAPI microservice is listening on port <code className="text-blue-700 bg-blue-50 px-1 py-0.5 rounded border border-blue-100/40">8000</code> and CORS is open for connection. When you proceed with Phase 2, you can create Python scripts to invoke generative financial analyses, forecast remaining balance based on MERN data, and push the calculations back into your Express API.
+          Our predictive models analyze liquidity requirements, evaluate tax-loss harvesting thresholds, and simulate yield optimizations on port 8000. Under Phase 2, this risk engine will forecast returns and coordinate actions with the MERN database.
         </p>
       </div>
     </div>
