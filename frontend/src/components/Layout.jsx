@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Receipt, Cpu, CheckCircle2, XCircle, AlertCircle, RefreshCw, 
-  Coins, PiggyBank, Landmark, Percent, TrendingUp, DollarSign 
+  Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee 
 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 
@@ -89,7 +89,7 @@ const Layout = () => {
         <PiggyBank className="absolute bottom-[12%] right-[5%] w-24 h-24 text-blue-500/4 -rotate-12" />
         <Landmark className="absolute top-[45%] left-[2%] w-16 h-16 text-blue-500/5 rotate-[20deg]" />
         <Coins className="absolute top-[18%] right-[8%] w-20 h-20 text-blue-500/4 -rotate-45" />
-        <DollarSign className="absolute bottom-[18%] left-[6%] w-28 h-28 text-blue-500/3 rotate-[15deg]" />
+        <IndianRupee className="absolute bottom-[18%] left-[6%] w-28 h-28 text-blue-500/3 rotate-[15deg]" />
         <Percent className="absolute top-[58%] right-[3%] w-14 h-14 text-blue-500/5 rotate-12" />
       </div>
 

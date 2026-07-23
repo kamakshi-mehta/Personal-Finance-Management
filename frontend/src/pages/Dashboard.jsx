@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { IndianRupee, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 const Dashboard = () => {
   return (
@@ -19,10 +19,10 @@ const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Balance</p>
-              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">$24,500.00</h3>
+              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">₹24,500.00</h3>
             </div>
             <div className="card-icon-wrapper-blue">
-              <DollarSign className="w-5 h-5" />
+              <IndianRupee className="w-5 h-5" />
             </div>
           </div>
           <div className="metric-change-up">
@@ -36,7 +36,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Monthly Spending</p>
-              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">$3,420.50</h3>
+              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">₹3,420.50</h3>
             </div>
             <div className="card-icon-wrapper-sky">
               <Wallet className="w-5 h-5" />
@@ -53,7 +53,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">My Investments</p>
-              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">$8,124.00</h3>
+              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">₹8,124.00</h3>
             </div>
             <div className="card-icon-wrapper-indigo">
               <TrendingUp className="w-5 h-5" />

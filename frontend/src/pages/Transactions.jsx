@@ -40,10 +40,10 @@ const Transactions = () => {
                   </td>
                   <td className="table-cell">{tx.category}</td>
                   <td className="p-4 text-sm text-slate-400">{tx.date}</td>
-                  <td className={`p-4 text-sm font-semibold text-right ${tx.amount > 0 ? 'text-blue-700' : 'text-sky-600'}`}>
+                  <td className={`p-4 text-sm font-semibold text-right \${tx.amount > 0 ? 'text-blue-700' : 'text-sky-600'}`}>
                     <span className="flex items-center justify-end">
                       {tx.amount > 0 ? <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" /> : <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" />}
-                      ${Math.abs(tx.amount).toFixed(2)}
+                      ₹{Math.abs(tx.amount).toFixed(2)}
                     </span>
                   </td>
                 </tr>
