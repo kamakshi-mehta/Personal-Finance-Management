@@ -25,7 +25,7 @@ const Dashboard = () => {
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
-          <div className="flex items-center text-xs text-emerald-600 mt-4 font-medium">
+          <div className="flex items-center text-xs text-blue-600 mt-4 font-medium">
             <ArrowUpRight className="w-4 h-4 mr-1" />
             <span>+12.4% this month</span>
           </div>
@@ -38,11 +38,11 @@ const Dashboard = () => {
               <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Monthly Expenses</p>
               <h3 className="text-3xl font-extrabold text-blue-950 mt-2">$3,420.50</h3>
             </div>
-            <div className="p-3 bg-rose-50 text-rose-600 rounded-xl border border-rose-100/50">
+            <div className="p-3 bg-sky-50 text-sky-600 rounded-xl border border-sky-100/50">
               <Wallet className="w-5 h-5" />
             </div>
           </div>
-          <div className="flex items-center text-xs text-rose-600 mt-4 font-medium">
+          <div className="flex items-center text-xs text-sky-600 mt-4 font-medium">
             <ArrowDownRight className="w-4 h-4 mr-1" />
             <span>-8.2% from budget limit</span>
           </div>

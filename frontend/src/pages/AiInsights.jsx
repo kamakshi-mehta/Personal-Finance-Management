@@ -57,10 +57,10 @@ const AiInsights = () => {
         <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-              <Layers className="text-emerald-500 w-4 h-4" />
+              <Layers className="text-blue-500 w-4 h-4" />
               Express Backend Health Check
             </span>
-            <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/50">
+            <span className="text-[10px] bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full border border-sky-200/50">
               GET /api/health
             </span>
           </div>
