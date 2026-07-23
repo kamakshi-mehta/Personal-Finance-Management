@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { TrendingUp, Percent, ArrowUpRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const StockMarket = () => {
-  const [stockHoldings, setStockHoldings] = useState([
-    { id: 1, ticker: 'RELIANCE', name: 'Reliance Industries Ltd.', qty: 12, avgPrice: 2350, currentPrice: 2465, pnl: '+4.9%' },
-    { id: 2, ticker: 'TCS', name: 'Tata Consultancy Services', qty: 5, avgPrice: 3100, currentPrice: 3240, pnl: '+4.5%' },
-    { id: 3, ticker: 'HDFCBANK', name: 'HDFC Bank Ltd.', qty: 25, avgPrice: 1520, currentPrice: 1495, pnl: '-1.6%' },
-  ]);
+  const [stockHoldings, setStockHoldings] = useState([]);
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -216,28 +212,36 @@ const StockMarket = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {stockHoldings.map((stock) => (
-              <tr key={stock.id} className="table-row">
-                <td className="p-4 flex flex-col">
-                  <span className="font-semibold text-slate-800 text-sm">{stock.ticker}</span>
-                  <span className="text-[10px] text-slate-500">{stock.name}</span>
-                </td>
-                <td className="p-4 text-sm text-slate-700">{stock.qty}</td>
-                <td className="p-4 text-sm text-slate-700">₹{stock.avgPrice.toLocaleString('en-IN')}</td>
-                <td className="p-4 text-sm text-slate-700 font-semibold">₹{stock.currentPrice.toLocaleString('en-IN')}</td>
-                <td className={`p-4 text-sm font-semibold \${stock.pnl.startsWith('+') ? 'text-blue-600' : 'text-sky-600'}`}>
-                  {stock.pnl}
-                </td>
-                <td className="p-4 text-right">
-                  <button
-                    onClick={() => handleDeleteStock(stock.id)}
-                    className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 inline" />
-                  </button>
+            {stockHoldings.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-slate-400 text-sm">
+                  No stock holdings registered. Click "Add Holding" to populate your portfolio.
                 </td>
               </tr>
-            ))}
+            ) : (
+              stockHoldings.map((stock) => (
+                <tr key={stock.id} className="table-row">
+                  <td className="p-4 flex flex-col">
+                    <span className="font-semibold text-slate-800 text-sm">{stock.ticker}</span>
+                    <span className="text-[10px] text-slate-500">{stock.name}</span>
+                  </td>
+                  <td className="p-4 text-sm text-slate-700">{stock.qty}</td>
+                  <td className="p-4 text-sm text-slate-700">₹{stock.avgPrice.toLocaleString('en-IN')}</td>
+                  <td className="p-4 text-sm text-slate-700 font-semibold">₹{stock.currentPrice.toLocaleString('en-IN')}</td>
+                  <td className={`p-4 text-sm font-semibold \${stock.pnl.startsWith('+') ? 'text-blue-600' : 'text-sky-600'}`}>
+                    {stock.pnl}
+                  </td>
+                  <td className="p-4 text-right">
+                    <button
+                      onClick={() => handleDeleteStock(stock.id)}
+                      className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 inline" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

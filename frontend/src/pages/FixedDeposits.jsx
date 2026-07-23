@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { Landmark, Percent, Calendar, Plus, Trash2, ArrowUpRight, Lightbulb } from 'lucide-react';
+import { Landmark, Percent, Plus, Trash2, ArrowUpRight, Lightbulb } from 'lucide-react';
 
 const FixedDeposits = () => {
-  const [activeFds, setActiveFds] = useState([
-    { id: 1, bankName: 'HDFC Bank Fixed Deposit', principal: 150000, interestRate: '7.10%', maturityDate: 'Dec 15, 2026', interestPayout: 'On Maturity' },
-    { id: 2, bankName: 'State Bank of India FD', principal: 100000, interestRate: '6.85%', maturityDate: 'Mar 24, 2027', interestPayout: 'Quarterly' },
-  ]);
+  const [activeFds, setActiveFds] = useState([]);
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -154,7 +151,7 @@ const FixedDeposits = () => {
           </div>
           <p className="text-xs text-blue-600 mt-4 font-medium flex items-center">
             <ArrowUpRight className="w-4 h-4 mr-0.5" />
-            Average Yield Rate: {avgRate.toFixed(2)}%
+            Average Yield Rate: {avgRate ? avgRate.toFixed(2) : '0.00'}%
           </p>
         </div>
 
@@ -211,23 +208,31 @@ const FixedDeposits = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {activeFds.map((fd) => (
-              <tr key={fd.id} className="table-row">
-                <td className="p-4 font-medium text-slate-800 text-sm">{fd.bankName}</td>
-                <td className="p-4 text-sm text-slate-700 font-semibold">₹{fd.principal.toLocaleString('en-IN')}</td>
-                <td className="p-4 text-sm text-blue-600 font-semibold">{fd.interestRate}</td>
-                <td className="p-4 text-sm text-slate-400">{fd.maturityDate}</td>
-                <td className="p-4 text-sm text-slate-500">{fd.interestPayout}</td>
-                <td className="p-4 text-right">
-                  <button
-                    onClick={() => handleDeleteFd(fd.id)}
-                    className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 inline" />
-                  </button>
+            {activeFds.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-slate-400 text-sm">
+                  No active fixed deposits registered. Click "Create FD" to register your deposit.
                 </td>
               </tr>
-            ))}
+            ) : (
+              activeFds.map((fd) => (
+                <tr key={fd.id} className="table-row">
+                  <td className="p-4 font-medium text-slate-800 text-sm">{fd.bankName}</td>
+                  <td className="p-4 text-sm text-slate-700 font-semibold">₹{fd.principal.toLocaleString('en-IN')}</td>
+                  <td className="p-4 text-sm text-blue-600 font-semibold">{fd.interestRate}</td>
+                  <td className="p-4 text-sm text-slate-400">{fd.maturityDate}</td>
+                  <td className="p-4 text-sm text-slate-500">{fd.interestPayout}</td>
+                  <td className="p-4 text-right">
+                    <button
+                      onClick={() => handleDeleteFd(fd.id)}
+                      className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 inline" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

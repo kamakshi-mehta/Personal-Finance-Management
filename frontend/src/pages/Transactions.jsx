@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { ArrowUpRight, ArrowDownRight, ShieldCheck, ShoppingCart, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const Transactions = () => {
-  const [mockTransactions, setMockTransactions] = useState([
-    { id: 1, desc: 'Salary Bonus', amount: 45.50, category: 'Income', date: 'July 01, 2026', icon: ShieldCheck, color: 'text-blue-700 bg-blue-50 border border-blue-100/50' },
-    { id: 2, desc: 'Monthly Salary', amount: 3500.00, category: 'Income', date: 'June 30, 2026', icon: ShieldCheck, color: 'text-blue-700 bg-blue-50 border border-blue-100/50' },
-    { id: 3, desc: 'Stock Investment (ETF)', amount: -124.99, category: 'Investments', date: 'June 28, 2026', icon: ShoppingCart, color: 'text-indigo-600 bg-indigo-50 border border-indigo-100/50' },
-  ]);
+  const [mockTransactions, setMockTransactions] = useState([]);
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -155,35 +151,43 @@ const Transactions = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {mockTransactions.map((tx) => {
-              const Icon = tx.icon;
-              return (
-                <tr key={tx.id} className="table-row">
-                  <td className="p-4 flex items-center space-x-3">
-                    <div className={`p-2 rounded-xl ${tx.color}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <span className="font-medium text-slate-800 text-sm">{tx.desc}</span>
-                  </td>
-                  <td className="table-cell">{tx.category}</td>
-                  <td className="p-4 text-sm text-slate-400">{tx.date}</td>
-                  <td className={`p-4 text-sm font-semibold ${tx.amount > 0 ? 'text-blue-700' : 'text-sky-600'}`}>
-                    <span className="flex items-center">
-                      {tx.amount > 0 ? <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" /> : <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" />}
-                      ₹{Math.abs(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => handleDeleteTransaction(tx.id)}
-                      className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4 inline" />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+            {mockTransactions.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-slate-400 text-sm">
+                  No logged transactions. Click "Log Transaction" to register money inflows/outflows.
+                </td>
+              </tr>
+            ) : (
+              mockTransactions.map((tx) => {
+                const Icon = tx.icon;
+                return (
+                  <tr key={tx.id} className="table-row">
+                    <td className="p-4 flex items-center space-x-3">
+                      <div className={`p-2 rounded-xl ${tx.color}`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="font-medium text-slate-800 text-sm">{tx.desc}</span>
+                    </td>
+                    <td className="table-cell">{tx.category}</td>
+                    <td className="p-4 text-sm text-slate-400">{tx.date}</td>
+                    <td className={`p-4 text-sm font-semibold ${tx.amount > 0 ? 'text-blue-700' : 'text-sky-600'}`}>
+                      <span className="flex items-center">
+                        {tx.amount > 0 ? <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" /> : <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" />}
+                        ₹{Math.abs(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => handleDeleteTransaction(tx.id)}
+                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 inline" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

@@ -2,25 +2,14 @@ import React, { useState } from 'react';
 import { Wallet, PiggyBank, Landmark, Percent, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const BudgetPlanning = () => {
-  // 1. Regular spending categories
-  const [spendingBudgets, setSpendingBudgets] = useState([
-    { id: 1, name: 'Groceries & Household', spent: 4800, limit: 10000, color: 'bg-blue-600' },
-    { id: 2, name: 'Utilities & Subscriptions', spent: 2200, limit: 5000, color: 'bg-indigo-600' },
-    { id: 3, name: 'Travel & Commute', spent: 1500, limit: 3000, color: 'bg-sky-500' },
-    { id: 4, name: 'Entertainment & Outings', spent: 3100, limit: 4000, color: 'bg-blue-400' },
-  ]);
+  // 1. Regular spending categories (starts empty)
+  const [spendingBudgets, setSpendingBudgets] = useState([]);
 
-  // 2. Investment SIP commitments
-  const [sipAllocations, setSipAllocations] = useState([
-    { id: 1, name: 'Bluechip Equity Growth Fund', amount: 5000, type: 'Mutual Fund SIP', color: 'bg-blue-600' },
-    { id: 2, name: 'Index Nifty 50 Fund', amount: 3000, type: 'Mutual Fund SIP', color: 'bg-indigo-600' },
-  ]);
+  // 2. Investment SIP commitments (starts empty)
+  const [sipAllocations, setSipAllocations] = useState([]);
 
-  // 3. Debt EMI obligations
-  const [emiObligations, setEmiObligations] = useState([
-    { id: 1, name: 'HDFC Car Loan EMI', amount: 8500, type: 'Automobile Loan', color: 'bg-sky-500' },
-    { id: 2, name: 'SBI Education Loan EMI', amount: 5000, type: 'Student Loan', color: 'bg-blue-400' },
-  ]);
+  // 3. Debt EMI obligations (starts empty)
+  const [emiObligations, setEmiObligations] = useState([]);
 
   // Form toggles
   const [showCatForm, setShowCatForm] = useState(false);
@@ -241,32 +230,38 @@ const BudgetPlanning = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {spendingBudgets.map((cat) => {
-              const percent = Math.min((cat.spent / cat.limit) * 100, 100);
-              return (
-                <div key={cat.id} className="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-slate-800 text-sm">{cat.name}</span>
-                    <button
-                      onClick={() => handleDeleteCategory(cat.id)}
-                      className="text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+            {spendingBudgets.length === 0 ? (
+              <div className="col-span-2 bg-white/40 p-6 rounded-2xl border border-slate-200/50 text-center text-slate-400 text-sm">
+                No category budgets defined. Click "Add Category Budget" to initialize spending tracking.
+              </div>
+            ) : (
+              spendingBudgets.map((cat) => {
+                const percent = Math.min((cat.spent / cat.limit) * 100, 100);
+                return (
+                  <div key={cat.id} className="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-slate-800 text-sm">{cat.name}</span>
+                      <button
+                        onClick={() => handleDeleteCategory(cat.id)}
+                        className="text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="flex justify-between text-xs font-semibold text-slate-500">
+                      <span>Spent: ₹{cat.spent.toLocaleString('en-IN')}</span>
+                      <span>Limit: ₹{cat.limit.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2">
+                      <div className={`h-2 rounded-full ${cat.color}`} style={{ width: `${percent}%` }}></div>
+                    </div>
+                    <div className="text-[10px] text-right font-bold text-blue-600">
+                      {percent.toFixed(0)}% Utilized
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs font-semibold text-slate-500">
-                    <span>Spent: ₹{cat.spent.toLocaleString('en-IN')}</span>
-                    <span>Limit: ₹{cat.limit.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2">
-                    <div className={`h-2 rounded-full ${cat.color}`} style={{ width: `${percent}%` }}></div>
-                  </div>
-                  <div className="text-[10px] text-right font-bold text-blue-600">
-                    {percent.toFixed(0)}% Utilized
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -332,32 +327,38 @@ const BudgetPlanning = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {sipAllocations.map((sip) => (
-              <div key={sip.id} className="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-slate-800 text-sm">{sip.name}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider">{sip.type}</span>
-                    <button
-                      onClick={() => handleDeleteSip(sip.id)}
-                      className="text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+            {sipAllocations.length === 0 ? (
+              <div className="col-span-2 bg-white/40 p-6 rounded-2xl border border-slate-200/50 text-center text-slate-400 text-sm">
+                No active investment SIPs listed. Click "Add SIP Commitment" to register your plans.
+              </div>
+            ) : (
+              sipAllocations.map((sip) => (
+                <div key={sip.id} className="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-800 text-sm">{sip.name}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider">{sip.type}</span>
+                      <button
+                        onClick={() => handleDeleteSip(sip.id)}
+                        className="text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs font-semibold text-slate-500">
+                    <span>Monthly Allocation:</span>
+                    <span className="text-blue-950 font-bold">₹{sip.amount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2">
+                    <div className={`h-2 rounded-full ${sip.color}`} style={{ width: '100%' }}></div>
+                  </div>
+                  <div className="text-[10px] text-right font-bold text-blue-600">
+                    100% Invested
                   </div>
                 </div>
-                <div className="flex justify-between text-xs font-semibold text-slate-500">
-                  <span>Monthly Allocation:</span>
-                  <span className="text-blue-950 font-bold">₹{sip.amount.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className={`h-2 rounded-full ${sip.color}`} style={{ width: '100%' }}></div>
-                </div>
-                <div className="text-[10px] text-right font-bold text-blue-600">
-                  100% Invested
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -424,32 +425,38 @@ const BudgetPlanning = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {emiObligations.map((emi) => (
-              <div key={emi.id} className="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-slate-800 text-sm">{emi.name}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-[10px] text-sky-600 font-bold uppercase tracking-wider">{emi.type}</span>
-                    <button
-                      onClick={() => handleDeleteEmi(emi.id)}
-                      className="text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+            {emiObligations.length === 0 ? (
+              <div className="col-span-2 bg-white/40 p-6 rounded-2xl border border-slate-200/50 text-center text-slate-400 text-sm">
+                No active loan EMI obligations registered. Click "Add EMI Obligation" to track fixed debt dues.
+              </div>
+            ) : (
+              emiObligations.map((emi) => (
+                <div key={emi.id} className="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-slate-800 text-sm">{emi.name}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[10px] text-sky-600 font-bold uppercase tracking-wider">{emi.type}</span>
+                      <button
+                        onClick={() => handleDeleteEmi(emi.id)}
+                        className="text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs font-semibold text-slate-500">
+                    <span>Monthly EMI Outflow:</span>
+                    <span className="text-blue-950 font-bold">₹{emi.amount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2">
+                    <div className="h-2 rounded-full bg-sky-500" style={{ width: '100%' }}></div>
+                  </div>
+                  <div className="text-[10px] text-right font-bold text-sky-600">
+                    100% Paid Dues
                   </div>
                 </div>
-                <div className="flex justify-between text-xs font-semibold text-slate-500">
-                  <span>Monthly EMI Outflow:</span>
-                  <span className="text-blue-950 font-bold">₹{emi.amount.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="h-2 rounded-full bg-sky-500" style={{ width: '100%' }}></div>
-                </div>
-                <div className="text-[10px] text-right font-bold text-sky-600">
-                  100% Paid Dues
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

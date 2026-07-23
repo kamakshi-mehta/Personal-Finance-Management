@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { Landmark, TrendingUp, Calendar, ArrowUpRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const MutualFunds = () => {
-  const [activeSips, setActiveSips] = useState([
-    { id: 1, name: 'Bluechip Equity Growth Fund', amount: 5000, frequency: 'Monthly', nextDate: 'Aug 05, 2026', yield: '+14.2% annualized' },
-    { id: 2, name: 'Index Nifty 50 Fund', amount: 3000, frequency: 'Monthly', nextDate: 'Aug 12, 2026', yield: '+12.8% annualized' },
-  ]);
+  const [activeSips, setActiveSips] = useState([]);
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -41,7 +38,7 @@ const MutualFunds = () => {
 
   // Calculations
   const totalSip = activeSips.reduce((acc, curr) => acc + curr.amount, 0);
-  const totalMfValue = 137000 + totalSip; // base holdings + current sips
+  const totalMfValue = totalSip; // Starts empty and reflects user input only
 
   return (
     <div className="space-y-6">
@@ -194,23 +191,31 @@ const MutualFunds = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {activeSips.map((sip) => (
-              <tr key={sip.id} className="table-row">
-                <td className="p-4 font-medium text-slate-800 text-sm">{sip.name}</td>
-                <td className="p-4 text-sm text-slate-700 font-semibold">₹{sip.amount.toLocaleString('en-IN')}</td>
-                <td className="table-cell">{sip.frequency}</td>
-                <td className="p-4 text-sm text-slate-400">{sip.nextDate}</td>
-                <td className="p-4 text-sm font-semibold text-blue-600">{sip.yield}</td>
-                <td className="p-4 text-right">
-                  <button
-                    onClick={() => handleDeleteSip(sip.id)}
-                    className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 inline" />
-                  </button>
+            {activeSips.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-slate-400 text-sm">
+                  No active SIP investments registered. Click "Add New SIP" to populate your portfolio.
                 </td>
               </tr>
-            ))}
+            ) : (
+              activeSips.map((sip) => (
+                <tr key={sip.id} className="table-row">
+                  <td className="p-4 font-medium text-slate-800 text-sm">{sip.name}</td>
+                  <td className="p-4 text-sm text-slate-700 font-semibold">₹{sip.amount.toLocaleString('en-IN')}</td>
+                  <td className="table-cell">{sip.frequency}</td>
+                  <td className="p-4 text-sm text-slate-400">{sip.nextDate}</td>
+                  <td className="p-4 text-sm font-semibold text-blue-600">{sip.yield}</td>
+                  <td className="p-4 text-right">
+                    <button
+                      onClick={() => handleDeleteSip(sip.id)}
+                      className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 inline" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

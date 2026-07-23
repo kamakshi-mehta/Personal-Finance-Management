@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { Wallet, Calendar, ArrowDownRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const Loans = () => {
-  const [activeLoans, setActiveLoans] = useState([
-    { id: 1, name: 'HDFC Car Loan', totalAmount: 500000, outstanding: 320000, emi: 8500, rate: '8.75%', nextEmi: 'Aug 05, 2026' },
-    { id: 2, name: 'SBI Education Loan', totalAmount: 300000, outstanding: 200000, emi: 5000, rate: '9.20%', nextEmi: 'Aug 10, 2026' },
-  ]);
+  const [activeLoans, setActiveLoans] = useState([]);
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -210,23 +207,31 @@ const Loans = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {activeLoans.map((loan) => (
-              <tr key={loan.id} className="table-row">
-                <td className="p-4 font-medium text-slate-800 text-sm">{loan.name}</td>
-                <td className="p-4 text-sm text-slate-500">₹{loan.totalAmount.toLocaleString('en-IN')}</td>
-                <td className="p-4 text-sm text-slate-700 font-semibold">₹{loan.outstanding.toLocaleString('en-IN')}</td>
-                <td className="p-4 text-sm text-blue-600 font-semibold">₹{loan.emi.toLocaleString('en-IN')}</td>
-                <td className="p-4 text-sm text-slate-400">{loan.rate}</td>
-                <td className="p-4 text-right">
-                  <button
-                    onClick={() => handleDeleteLoan(loan.id)}
-                    className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 inline" />
-                  </button>
+            {activeLoans.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-slate-400 text-sm">
+                  No active loan accounts registered. Click "Register Loan" to add your liabilities.
                 </td>
               </tr>
-            ))}
+            ) : (
+              activeLoans.map((loan) => (
+                <tr key={loan.id} className="table-row">
+                  <td className="p-4 font-medium text-slate-800 text-sm">{loan.name}</td>
+                  <td className="p-4 text-sm text-slate-500">₹{loan.totalAmount.toLocaleString('en-IN')}</td>
+                  <td className="p-4 text-sm text-slate-700 font-semibold">₹{loan.outstanding.toLocaleString('en-IN')}</td>
+                  <td className="p-4 text-sm text-blue-600 font-semibold">₹{loan.emi.toLocaleString('en-IN')}</td>
+                  <td className="p-4 text-sm text-slate-400">{loan.rate}</td>
+                  <td className="p-4 text-right">
+                    <button
+                      onClick={() => handleDeleteLoan(loan.id)}
+                      className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 inline" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
