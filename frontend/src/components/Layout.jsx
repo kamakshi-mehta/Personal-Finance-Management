@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Receipt, Cpu, CheckCircle2, XCircle, AlertCircle, RefreshCw, 
-  Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee 
+  Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee, Wallet 
 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 
@@ -150,6 +150,30 @@ const Layout = () => {
           >
             <LayoutDashboard className="w-5 h-5" />
             <span className="font-medium text-sm">My Dashboard</span>
+          </Link>
+
+          <Link
+            to="/mutual-funds"
+            className={location.pathname === '/mutual-funds' ? 'sidebar-link-active' : 'sidebar-link'}
+          >
+            <Landmark className="w-5 h-5" />
+            <span className="font-medium text-sm">Mutual Funds & SIP</span>
+          </Link>
+
+          <Link
+            to="/stocks"
+            className={location.pathname === '/stocks' ? 'sidebar-link-active' : 'sidebar-link'}
+          >
+            <TrendingUp className="w-5 h-5" />
+            <span className="font-medium text-sm">Stock Market</span>
+          </Link>
+
+          <Link
+            to="/budget"
+            className={location.pathname === '/budget' ? 'sidebar-link-active' : 'sidebar-link'}
+          >
+            <Wallet className="w-5 h-5" />
+            <span className="font-medium text-sm">Budget Planning</span>
           </Link>
 
           <Link
