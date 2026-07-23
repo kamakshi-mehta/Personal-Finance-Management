@@ -54,7 +54,7 @@ const Layout = () => {
         return (
           <span className="badge-connected">
             <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-            Synchronized
+            Connected
           </span>
         );
       case 'disconnected':
@@ -67,14 +67,14 @@ const Layout = () => {
       case 'checking':
         return (
           <span className="badge-checking">
-            Auditing...
+            Checking...
           </span>
         );
       default:
         return (
           <span className="badge-error">
             <AlertCircle className="w-3.5 h-3.5 mr-1" />
-            Sync Error
+            Error
           </span>
         );
     }
@@ -104,7 +104,7 @@ const Layout = () => {
               WealthAI
             </h1>
             <p className="logo-subtext">
-              Capital Yields & Portfolio Analyst
+              Simple Money & Investment Manager
             </p>
           </div>
         </div>
@@ -112,28 +112,28 @@ const Layout = () => {
         {/* Live Status Indicators */}
         <div className="hidden md:flex items-center space-x-4">
           <div className="flex flex-col items-end mr-2">
-            <span className="sync-label">PORTFOLIO DATA SYNC</span>
+            <span className="sync-label">CONNECTION STATUS</span>
             <button 
               onClick={checkConnections} 
               disabled={loading}
               className="sync-button"
             >
               <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-              Re-audit Ledger
+              Update Status
             </button>
           </div>
           
           <div className="connection-panel">
             <div className="connection-item">
-              <span className="connection-label">Asset Ledger Feed</span>
+              <span className="connection-label">Server Status</span>
               {getStatusBadge(backendStatus)}
             </div>
             <div className="connection-item">
-              <span className="connection-label">Ledger Database</span>
+              <span className="connection-label">Database</span>
               {getStatusBadge(dbStatus)}
             </div>
             <div className="connection-item">
-              <span className="connection-label">AI Risk Analyst</span>
+              <span className="connection-label">AI Engine</span>
               {getStatusBadge(aiStatus)}
             </div>
           </div>
@@ -149,7 +149,7 @@ const Layout = () => {
             className={location.pathname === '/' ? 'sidebar-link-active' : 'sidebar-link'}
           >
             <LayoutDashboard className="w-5 h-5" />
-            <span className="font-medium text-sm">Wealth Center</span>
+            <span className="font-medium text-sm">My Dashboard</span>
           </Link>
 
           <Link
@@ -157,7 +157,7 @@ const Layout = () => {
             className={location.pathname === '/transactions' ? 'sidebar-link-active' : 'sidebar-link'}
           >
             <Receipt className="w-5 h-5" />
-            <span className="font-medium text-sm">Ledgers & Outflows</span>
+            <span className="font-medium text-sm">All Transactions</span>
           </Link>
 
           <Link
@@ -165,7 +165,7 @@ const Layout = () => {
             className={location.pathname === '/ai-insights' ? 'sidebar-link-active' : 'sidebar-link'}
           >
             <Cpu className="w-5 h-5" />
-            <span className="font-medium text-sm">Yield & Risk Models</span>
+            <span className="font-medium text-sm">Smart AI Insights</span>
           </Link>
         </aside>
 
@@ -174,7 +174,7 @@ const Layout = () => {
           {/* Mobile status indicators */}
           <div className="mobile-badge-panel">
             <div className="flex items-center space-x-2">
-              <span className="text-[10px] text-slate-500 font-semibold uppercase">Ledger:</span>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase">Server:</span>
               {getStatusBadge(backendStatus)}
             </div>
             <div className="flex items-center space-x-2">
@@ -193,7 +193,7 @@ const Layout = () => {
 
       {/* Footer */}
       <footer className="footer-container">
-        WealthAI Investment Suite © 2026 • Real-time Financial Ledger Synchronized
+        WealthAI • Simple Personal Finance Management
       </footer>
     </div>
   );

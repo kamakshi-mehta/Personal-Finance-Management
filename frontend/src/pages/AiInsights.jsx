@@ -13,14 +13,14 @@ const AiInsights = () => {
       const bRes = await axiosClient.get('/health');
       setBackendResponse(bRes.data);
     } catch (err) {
-      setBackendResponse({ error: 'Ledger Offline', message: err.message });
+      setBackendResponse({ error: 'Server Offline', message: err.message });
     }
 
     try {
       const aRes = await axiosClient.get('/ai-status');
       setAiResponse(aRes.data);
     } catch (err) {
-      setAiResponse({ error: 'Risk Analyst Offline', message: err.message });
+      setAiResponse({ error: 'AI Service Offline', message: err.message });
     }
     setLoading(false);
   };
@@ -34,10 +34,10 @@ const AiInsights = () => {
       <div>
         <h2 className="ai-section-title">
           <Cpu className="text-blue-600 w-7 h-7" />
-          AI Risk Assessments & Portfolios
+          Smart AI & Connection Status
         </h2>
         <p className="text-slate-500 text-sm mt-1">
-          Audit real-time communication feeds between your accounts, ledgers, and automated AI analysis models.
+          Check how the frontend, backend, database, and AI service are communicating.
         </p>
       </div>
 
@@ -48,7 +48,7 @@ const AiInsights = () => {
           className="test-conn-button"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          Retrieve Real-time Risk Assessments
+          Check Connections
         </button>
       </div>
 
@@ -58,20 +58,20 @@ const AiInsights = () => {
           <div className="response-card-header">
             <span className="response-card-title">
               <Layers className="text-blue-500 w-4 h-4" />
-              Core Ledger Database Feed (MERN)
+              Backend Connection Status
             </span>
             <span className="response-badge-express">
-              Active Feed
+              Active Connection
             </span>
           </div>
 
           <div className="response-json-box">
             {loading ? (
-              <span className="text-slate-500 animate-pulse">Querying ledger database...</span>
+              <span className="text-slate-500 animate-pulse">Checking backend connection...</span>
             ) : backendResponse ? (
               <pre className="w-full text-left">{JSON.stringify(backendResponse, null, 2)}</pre>
             ) : (
-              <span className="text-slate-500">Asset data empty. Query the risk engine to fetch status.</span>
+              <span className="text-slate-500">No connection data. Click Check Connections to start.</span>
             )}
           </div>
         </div>
@@ -81,20 +81,20 @@ const AiInsights = () => {
           <div className="response-card-header">
             <span className="response-card-title">
               <Sparkles className="text-blue-500 w-4 h-4" />
-              AI Predictive Growth Insights
+              AI Service Connection Status
             </span>
             <span className="response-badge-fastapi">
-              Active Risk Models
+              Active Connection
             </span>
           </div>
 
           <div className="response-json-box">
             {loading ? (
-              <span className="text-slate-500 animate-pulse">Simulating market models via AI engine...</span>
+              <span className="text-slate-500 animate-pulse">Checking AI service connection...</span>
             ) : aiResponse ? (
               <pre className="w-full text-left">{JSON.stringify(aiResponse, null, 2)}</pre>
             ) : (
-              <span className="text-slate-500">Asset data empty. Query the risk engine to fetch status.</span>
+              <span className="text-slate-500">No connection data. Click Check Connections to start.</span>
             )}
           </div>
         </div>
@@ -104,10 +104,10 @@ const AiInsights = () => {
       <div className="ai-simulation-card">
         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
           <Terminal className="text-blue-600 w-4.5 h-4.5" />
-          AI Asset Allocation Engine
+          What does this AI do?
         </h3>
         <p className="text-xs text-slate-500">
-          Our predictive models analyze liquidity requirements, evaluate tax-loss harvesting thresholds, and simulate yield optimizations on port 8000. Under Phase 2, this risk engine will forecast returns and coordinate actions with the MERN database.
+          Our AI service will analyze your spending habits, help you save more money, and give you smart budget recommendations. In the next phase, we will connect this AI engine directly with your database to give you live, personalized budget suggestions.
         </p>
       </div>
     </div>
