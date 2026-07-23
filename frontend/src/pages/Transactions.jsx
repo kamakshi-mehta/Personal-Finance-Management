@@ -17,28 +17,28 @@ const Transactions = () => {
         </div>
       </div>
 
-      <div className="bg-white/90 backdrop-blur-sm border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
+      <div className="table-container">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/80">
-              <th className="p-4 text-xs font-semibold uppercase text-slate-500">Description</th>
-              <th className="p-4 text-xs font-semibold uppercase text-slate-500">Category</th>
-              <th className="p-4 text-xs font-semibold uppercase text-slate-500">Date</th>
-              <th className="p-4 text-xs font-semibold uppercase text-slate-500 text-right">Amount</th>
+            <tr className="table-header-row">
+              <th className="table-header-cell">Description</th>
+              <th className="table-header-cell">Category</th>
+              <th className="table-header-cell">Date</th>
+              <th className="table-header-cell text-right">Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {mockTransactions.map((tx) => {
               const Icon = tx.icon;
               return (
-                <tr key={tx.id} className="hover:bg-slate-50/40 transition-colors">
+                <tr key={tx.id} className="table-row">
                   <td className="p-4 flex items-center space-x-3">
                     <div className={`p-2 rounded-xl ${tx.color}`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <span className="font-medium text-slate-800 text-sm">{tx.desc}</span>
                   </td>
-                  <td className="p-4 text-sm text-slate-500">{tx.category}</td>
+                  <td className="table-cell">{tx.category}</td>
                   <td className="p-4 text-sm text-slate-400">{tx.date}</td>
                   <td className={`p-4 text-sm font-semibold text-right ${tx.amount > 0 ? 'text-blue-700' : 'text-sky-600'}`}>
                     <span className="flex items-center justify-end">

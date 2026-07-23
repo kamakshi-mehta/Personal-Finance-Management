@@ -32,7 +32,7 @@ const AiInsights = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <h2 className="ai-section-title">
           <Cpu className="text-blue-600 w-7 h-7" />
           AI Microservice & System Status
         </h2>
@@ -45,27 +45,27 @@ const AiInsights = () => {
         <button
           onClick={fetchStatus}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-semibold rounded-xl shadow-md shadow-blue-500/20 cursor-pointer transition-all duration-300"
+          className="test-conn-button"
         >
-          <RefreshCw className={`w-4 h-4 \${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Test System Communication
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Express Response Card */}
-        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+        <div className="response-card-wrapper">
+          <div className="response-card-header">
+            <span className="response-card-title">
               <Layers className="text-blue-500 w-4 h-4" />
               Express Backend Health Check
             </span>
-            <span className="text-[10px] bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full border border-sky-200/50">
+            <span className="response-badge-express">
               GET /api/health
             </span>
           </div>
 
-          <div className="flex-1 bg-slate-900 p-4 rounded-xl border border-slate-800 font-mono text-xs text-blue-300 overflow-x-auto min-h-[160px] flex items-center justify-center">
+          <div className="response-json-box">
             {loading ? (
               <span className="text-slate-500 animate-pulse">Requesting backend...</span>
             ) : backendResponse ? (
@@ -77,18 +77,18 @@ const AiInsights = () => {
         </div>
 
         {/* FastAPI Response Card */}
-        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+        <div className="response-card-wrapper">
+          <div className="response-card-header">
+            <span className="response-card-title">
               <Sparkles className="text-blue-500 w-4 h-4" />
               FastAPI AI Communication Check
             </span>
-            <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200/50">
+            <span className="response-badge-fastapi">
               GET /api/ai-status
             </span>
           </div>
 
-          <div className="flex-1 bg-slate-900 p-4 rounded-xl border border-slate-800 font-mono text-xs text-blue-300 overflow-x-auto min-h-[160px] flex items-center justify-center">
+          <div className="response-json-box">
             {loading ? (
               <span className="text-slate-500 animate-pulse">Pinging FastAPI via Express...</span>
             ) : aiResponse ? (
@@ -101,7 +101,7 @@ const AiInsights = () => {
       </div>
 
       {/* Simple AI Insight simulation */}
-      <div className="bg-gradient-to-r from-blue-50/50 via-white to-slate-100/50 p-6 rounded-2xl border border-slate-200/80 flex flex-col space-y-3 shadow-sm">
+      <div className="ai-simulation-card">
         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
           <Terminal className="text-blue-600 w-4.5 h-4.5" />
           AI Microservice Capabilities

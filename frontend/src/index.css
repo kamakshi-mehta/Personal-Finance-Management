@@ -24,3 +24,196 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* ==========================================
+   SEMANTIC THEME STYLES (White & Blue Shades)
+   ========================================== */
+
+.theme-container {
+  @apply min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans relative overflow-hidden;
+}
+
+.bg-symbols-layer {
+  @apply absolute inset-0 pointer-events-none overflow-hidden z-0 select-none;
+}
+
+.theme-header {
+  @apply border-b border-slate-200 bg-white/70 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm relative;
+}
+
+.logo-accent {
+  @apply bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-xl text-white shadow-md shadow-blue-500/20;
+}
+
+.logo-text {
+  @apply text-xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-800 bg-clip-text text-transparent m-0;
+}
+
+.logo-subtext {
+  @apply text-[10px] text-slate-500 tracking-wider uppercase font-semibold;
+}
+
+.sync-label {
+  @apply text-[10px] text-slate-400 font-medium;
+}
+
+.sync-button {
+  @apply text-[11px] text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer disabled:opacity-50 mt-0.5 font-medium;
+}
+
+.connection-panel {
+  @apply flex space-x-4 bg-slate-100/50 p-2 rounded-xl border border-slate-200/60;
+}
+
+.connection-item {
+  @apply flex flex-col space-y-1;
+}
+
+.connection-label {
+  @apply text-[10px] text-slate-500 px-1 font-semibold uppercase;
+}
+
+/* Badges */
+.badge-connected {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200;
+}
+
+.badge-disconnected {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200;
+}
+
+.badge-checking {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-50 text-slate-400 border border-slate-100/50 animate-pulse;
+}
+
+.badge-error {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200;
+}
+
+/* Sidebar and Main content */
+.sidebar-container {
+  @apply w-full md:w-64 border-r border-slate-200 bg-white/40 backdrop-blur-sm p-4 space-y-2 flex flex-row md:flex-col justify-around md:justify-start;
+}
+
+.sidebar-link {
+  @apply flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 text-slate-600 hover:text-blue-600 hover:bg-blue-50/30;
+}
+
+.sidebar-link-active {
+  @apply flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 bg-blue-50 text-blue-600 border-l-2 border-blue-600;
+}
+
+.main-content {
+  @apply flex-1 p-6 md:p-8 overflow-y-auto;
+}
+
+.mobile-badge-panel {
+  @apply flex md:hidden flex-wrap gap-3 mb-6 bg-white/60 p-3 rounded-xl border border-slate-200 justify-around shadow-sm;
+}
+
+.footer-container {
+  @apply border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400 relative z-20;
+}
+
+/* Cards & Dashboard */
+.welcome-banner {
+  @apply bg-gradient-to-r from-blue-50/60 via-white to-indigo-50/40 p-6 rounded-2xl border border-blue-100/80 shadow-sm;
+}
+
+.welcome-title {
+  @apply text-2xl font-bold text-slate-900;
+}
+
+.welcome-sub {
+  @apply text-slate-500 text-sm mt-1;
+}
+
+.cards-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}
+
+.metric-card {
+  @apply bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300;
+}
+
+.card-icon-wrapper-blue {
+  @apply p-3 bg-blue-50 text-blue-600 rounded-xl border border-blue-100/50;
+}
+
+.card-icon-wrapper-sky {
+  @apply p-3 bg-sky-50 text-sky-600 rounded-xl border border-sky-100/50;
+}
+
+.card-icon-wrapper-indigo {
+  @apply p-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100/50;
+}
+
+.metric-change-up {
+  @apply flex items-center text-xs text-blue-600 mt-4 font-medium;
+}
+
+.metric-change-down {
+  @apply flex items-center text-xs text-sky-600 mt-4 font-medium;
+}
+
+.demo-note-box {
+  @apply bg-white/40 border border-slate-200/60 rounded-xl p-4 text-xs text-slate-400 shadow-sm backdrop-blur-xs;
+}
+
+/* Tables */
+.table-container {
+  @apply bg-white/90 backdrop-blur-sm border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm;
+}
+
+.table-header-row {
+  @apply border-b border-slate-100 bg-slate-50/80;
+}
+
+.table-header-cell {
+  @apply p-4 text-xs font-semibold uppercase text-slate-500;
+}
+
+.table-row {
+  @apply hover:bg-slate-50/40 transition-colors;
+}
+
+.table-cell {
+  @apply p-4 text-sm text-slate-500;
+}
+
+/* API & AI Insights */
+.ai-section-title {
+  @apply text-2xl font-bold text-slate-900 flex items-center gap-2;
+}
+
+.test-conn-button {
+  @apply flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-semibold rounded-xl shadow-md shadow-blue-500/20 cursor-pointer transition-all duration-300;
+}
+
+.response-card-wrapper {
+  @apply bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-4;
+}
+
+.response-card-header {
+  @apply flex items-center justify-between;
+}
+
+.response-card-title {
+  @apply text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2;
+}
+
+.response-badge-express {
+  @apply text-[10px] bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full border border-sky-200/50;
+}
+
+.response-badge-fastapi {
+  @apply text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200/50;
+}
+
+.response-json-box {
+  @apply flex-1 bg-slate-900 p-4 rounded-xl border border-slate-800 font-mono text-xs text-blue-300 overflow-x-auto min-h-[160px] flex items-center justify-center;
+}
+
+.ai-simulation-card {
+  @apply bg-gradient-to-r from-blue-50/50 via-white to-slate-100/50 p-6 rounded-2xl border border-slate-200/80 flex flex-col space-y-3 shadow-sm;
+}
