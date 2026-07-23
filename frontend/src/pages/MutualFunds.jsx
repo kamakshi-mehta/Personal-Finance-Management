@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Landmark, TrendingUp, Calendar, ArrowUpRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const MutualFunds = () => {
-  const [activeSips, setActiveSips] = useState([]);
+  const [activeSips, setActiveSips] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_sips')) || [];
+  });
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -10,6 +12,12 @@ const MutualFunds = () => {
   const [sipAmount, setSipAmount] = useState('');
   const [nextDate, setNextDate] = useState('');
   const [yieldPercent, setYieldPercent] = useState('');
+
+  // Persist state updates to localStorage
+  const saveSips = (sips) => {
+    setActiveSips(sips);
+    localStorage.setItem('wealth_sips', JSON.stringify(sips));
+  };
 
   const handleAddSip = (e) => {
     e.preventDefault();
@@ -24,7 +32,7 @@ const MutualFunds = () => {
       yield: yieldPercent ? `+${yieldPercent}% annualized` : '+12.0% annualized',
     };
 
-    setActiveSips([...activeSips, newSip]);
+    saveSips([...activeSips, newSip]);
     setFundName('');
     setSipAmount('');
     setNextDate('');
@@ -33,7 +41,7 @@ const MutualFunds = () => {
   };
 
   const handleDeleteSip = (id) => {
-    setActiveSips(activeSips.filter(sip => sip.id !== id));
+    saveSips(activeSips.filter(sip => sip.id !== id));
   };
 
   // Calculations

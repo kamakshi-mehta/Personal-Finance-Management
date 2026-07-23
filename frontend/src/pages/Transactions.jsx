@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { ArrowUpRight, ArrowDownRight, ShieldCheck, ShoppingCart, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const Transactions = () => {
-  const [mockTransactions, setMockTransactions] = useState([]);
+  const [mockTransactions, setMockTransactions] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_transactions')) || [];
+  });
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -10,6 +12,11 @@ const Transactions = () => {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Spending');
   const [date, setDate] = useState('');
+
+  const saveTransactions = (txs) => {
+    setMockTransactions(txs);
+    localStorage.setItem('wealth_transactions', JSON.stringify(txs));
+  };
 
   const handleAddTransaction = (e) => {
     e.preventDefault();
@@ -31,7 +38,7 @@ const Transactions = () => {
         : 'text-indigo-600 bg-indigo-50 border border-indigo-100/50',
     };
 
-    setMockTransactions([newTx, ...mockTransactions]);
+    saveTransactions([newTx, ...mockTransactions]);
     setDesc('');
     setAmount('');
     setCategory('Spending');
@@ -40,7 +47,7 @@ const Transactions = () => {
   };
 
   const handleDeleteTransaction = (id) => {
-    setMockTransactions(mockTransactions.filter(tx => tx.id !== id));
+    saveTransactions(mockTransactions.filter(tx => tx.id !== id));
   };
 
   return (
@@ -64,10 +71,10 @@ const Transactions = () => {
           <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">New Transaction Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="flex flex-col space-y-1">
-              <label className="text-xs text-slate-500 font-semibold">Description</label>
+              <label className="text-xs text-slate-500 font-semibold">Description / Merchant</label>
               <input
                 type="text"
-                placeholder="e.g. Reliance Stock Dividend"
+                placeholder="e.g. Groceries Mart"
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 bg-slate-50"

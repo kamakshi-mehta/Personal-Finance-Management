@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Landmark, Percent, Plus, Trash2, ArrowUpRight, Lightbulb } from 'lucide-react';
 
 const FixedDeposits = () => {
-  const [activeFds, setActiveFds] = useState([]);
+  const [activeFds, setActiveFds] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_fds')) || [];
+  });
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -11,6 +13,11 @@ const FixedDeposits = () => {
   const [interestRate, setInterestRate] = useState('');
   const [maturityDate, setMaturityDate] = useState('');
   const [interestPayout, setInterestPayout] = useState('On Maturity');
+
+  const saveFds = (fds) => {
+    setActiveFds(fds);
+    localStorage.setItem('wealth_fds', JSON.stringify(fds));
+  };
 
   const handleAddFd = (e) => {
     e.preventDefault();
@@ -25,7 +32,7 @@ const FixedDeposits = () => {
       interestPayout: interestPayout,
     };
 
-    setActiveFds([...activeFds, newFd]);
+    saveFds([...activeFds, newFd]);
     setBankName('');
     setPrincipal('');
     setInterestRate('');
@@ -35,7 +42,7 @@ const FixedDeposits = () => {
   };
 
   const handleDeleteFd = (id) => {
-    setActiveFds(activeFds.filter(fd => fd.id !== id));
+    saveFds(activeFds.filter(fd => fd.id !== id));
   };
 
   // Calculations

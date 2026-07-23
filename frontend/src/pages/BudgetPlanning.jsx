@@ -2,14 +2,41 @@ import React, { useState } from 'react';
 import { Wallet, PiggyBank, Landmark, Percent, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const BudgetPlanning = () => {
-  // 1. Regular spending categories (starts empty)
-  const [spendingBudgets, setSpendingBudgets] = useState([]);
+  // 1. Regular spending categories (loaded/saved under wealth_budgets)
+  const [spendingBudgets, setSpendingBudgets] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_budgets')) || [];
+  });
 
-  // 2. Investment SIP commitments (starts empty)
-  const [sipAllocations, setSipAllocations] = useState([]);
+  // 2. Investment SIP commitments (synchronized with Mutual Funds wealth_sips)
+  const [sipAllocations, setSipAllocations] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_sips')) || [];
+  });
 
-  // 3. Debt EMI obligations (starts empty)
-  const [emiObligations, setEmiObligations] = useState([]);
+  // 3. Debt EMI obligations (synchronized with Loans wealth_loans)
+  const [emiObligations, setEmiObligations] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_loans')) || [];
+  });
+
+  // 4. Load all transactions to compute spent category values dynamically
+  const [transactions, setTransactions] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_transactions')) || [];
+  });
+
+  // Sync state triggers
+  const saveBudgets = (budgets) => {
+    setSpendingBudgets(budgets);
+    localStorage.setItem('wealth_budgets', JSON.stringify(budgets));
+  };
+
+  const saveSips = (sips) => {
+    setSipAllocations(sips);
+    localStorage.setItem('wealth_sips', JSON.stringify(sips));
+  };
+
+  const saveLoans = (loans) => {
+    setEmiObligations(loans);
+    localStorage.setItem('wealth_loans', JSON.stringify(loans));
+  };
 
   // Form toggles
   const [showCatForm, setShowCatForm] = useState(false);
@@ -18,7 +45,6 @@ const BudgetPlanning = () => {
 
   // Form input states
   const [catName, setCatName] = useState('');
-  const [catSpent, setCatSpent] = useState('');
   const [catLimit, setCatLimit] = useState('');
 
   const [sipName, setSipName] = useState('');
@@ -36,13 +62,11 @@ const BudgetPlanning = () => {
     const newCat = {
       id: Date.now(),
       name: catName,
-      spent: catSpent ? parseFloat(catSpent) : 0,
       limit: parseFloat(catLimit),
       color: colors[spendingBudgets.length % colors.length],
     };
-    setSpendingBudgets([...spendingBudgets, newCat]);
+    saveBudgets([...spendingBudgets, newCat]);
     setCatName('');
-    setCatSpent('');
     setCatLimit('');
     setShowCatForm(false);
   };
@@ -56,9 +80,12 @@ const BudgetPlanning = () => {
       name: sipName,
       amount: parseFloat(sipAmount),
       type: sipType,
+      frequency: 'Monthly',
+      nextDate: 'Aug 05, 2026',
+      yield: '+12.0% annualized',
       color: colors[sipAllocations.length % colors.length],
     };
-    setSipAllocations([...sipAllocations, newSip]);
+    saveSips([...sipAllocations, newSip]);
     setSipName('');
     setSipAmount('');
     setShowSipForm(false);
@@ -67,35 +94,52 @@ const BudgetPlanning = () => {
   const handleAddEmi = (e) => {
     e.preventDefault();
     if (!emiName || !emiAmount) return;
-    const newEmi = {
+    const newLoan = {
       id: Date.now(),
       name: emiName,
-      amount: parseFloat(emiAmount),
+      totalAmount: parseFloat(emiAmount) * 24, // simulated principal
+      outstanding: parseFloat(emiAmount) * 18,
+      emi: parseFloat(emiAmount),
+      rate: '9.00%',
       type: emiType,
+      nextEmi: 'Aug 05, 2026',
     };
-    setEmiObligations([...emiObligations, newEmi]);
+    saveLoans([...emiObligations, newLoan]);
     setEmiName('');
     setEmiAmount('');
     setShowEmiForm(false);
   };
 
   const handleDeleteCategory = (id) => {
-    setSpendingBudgets(spendingBudgets.filter(cat => cat.id !== id));
+    saveBudgets(spendingBudgets.filter(cat => cat.id !== id));
   };
 
   const handleDeleteSip = (id) => {
-    setSipAllocations(sipAllocations.filter(sip => sip.id !== id));
+    saveSips(sipAllocations.filter(sip => sip.id !== id));
   };
 
   const handleDeleteEmi = (id) => {
-    setEmiObligations(emiObligations.filter(emi => emi.id !== id));
+    saveLoans(emiObligations.filter(loan => loan.id !== id));
   };
 
   // Calculations
+  const getCategorySpent = (categoryName) => {
+    const term = categoryName.toLowerCase();
+    return transactions
+      .filter(tx => tx.amount < 0)
+      .filter(tx => {
+        const descLower = tx.desc.toLowerCase();
+        const catLower = (tx.category || '').toLowerCase();
+        return descLower.includes(term) || catLower.includes(term);
+      })
+      .reduce((acc, curr) => acc + Math.abs(curr.amount), 0);
+  };
+
+  // We compute total spending budgets limits, dynamically compute spent sums
   const totalRegularLimit = spendingBudgets.reduce((acc, curr) => acc + curr.limit, 0);
-  const totalRegularSpent = spendingBudgets.reduce((acc, curr) => acc + curr.spent, 0);
+  const totalRegularSpent = spendingBudgets.reduce((acc, curr) => acc + getCategorySpent(curr.name), 0);
   const totalSip = sipAllocations.reduce((acc, curr) => acc + curr.amount, 0);
-  const totalEmi = emiObligations.reduce((acc, curr) => acc + curr.amount, 0);
+  const totalEmi = emiObligations.reduce((acc, curr) => acc + curr.emi, 0);
 
   const grandTotalBudget = totalRegularLimit + totalSip + totalEmi;
   const grandTotalCommitted = totalRegularSpent + totalSip + totalEmi;
@@ -187,26 +231,16 @@ const BudgetPlanning = () => {
           {showCatForm && (
             <form onSubmit={handleAddCategory} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
               <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">New Category Budget Details</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col space-y-1">
                   <label className="text-xs text-slate-500 font-semibold">Category Name</label>
                   <input
                     type="text"
-                    placeholder="e.g. Dining Out"
+                    placeholder="e.g. Groceries"
                     value={catName}
                     onChange={(e) => setCatName(e.target.value)}
                     className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50"
                     required
-                  />
-                </div>
-                <div className="flex flex-col space-y-1">
-                  <label className="text-xs text-slate-500 font-semibold">Spent (₹ - optional)</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 1500"
-                    value={catSpent}
-                    onChange={(e) => setCatSpent(e.target.value)}
-                    className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50"
                   />
                 </div>
                 <div className="flex flex-col space-y-1">
@@ -221,6 +255,7 @@ const BudgetPlanning = () => {
                   />
                 </div>
               </div>
+              <p className="text-[11px] text-slate-400">Note: Actual spent amount is calculated automatically by matching transaction details with the category name.</p>
               <div className="flex justify-end">
                 <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl cursor-pointer">
                   Save Category Budget
@@ -236,7 +271,8 @@ const BudgetPlanning = () => {
               </div>
             ) : (
               spendingBudgets.map((cat) => {
-                const percent = Math.min((cat.spent / cat.limit) * 100, 100);
+                const spent = getCategorySpent(cat.name);
+                const percent = Math.min((spent / cat.limit) * 100, 100);
                 return (
                   <div key={cat.id} className="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-3">
                     <div className="flex justify-between items-center">
@@ -249,7 +285,7 @@ const BudgetPlanning = () => {
                       </button>
                     </div>
                     <div className="flex justify-between text-xs font-semibold text-slate-500">
-                      <span>Spent: ₹{cat.spent.toLocaleString('en-IN')}</span>
+                      <span>Spent: ₹{spent.toLocaleString('en-IN')}</span>
                       <span>Limit: ₹{cat.limit.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2">
@@ -351,7 +387,7 @@ const BudgetPlanning = () => {
                     <span className="text-blue-950 font-bold">₹{sip.amount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-2">
-                    <div className={`h-2 rounded-full ${sip.color}`} style={{ width: '100%' }}></div>
+                    <div className={`h-2 rounded-full ${sip.color || 'bg-blue-600'}`} style={{ width: '100%' }}></div>
                   </div>
                   <div className="text-[10px] text-right font-bold text-blue-600">
                     100% Invested
@@ -446,7 +482,7 @@ const BudgetPlanning = () => {
                   </div>
                   <div className="flex justify-between text-xs font-semibold text-slate-500">
                     <span>Monthly EMI Outflow:</span>
-                    <span className="text-blue-950 font-bold">₹{emi.amount.toLocaleString('en-IN')}</span>
+                    <span className="text-blue-950 font-bold">₹{emi.emi ? emi.emi.toLocaleString('en-IN') : emi.amount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-2">
                     <div className="h-2 rounded-full bg-sky-500" style={{ width: '100%' }}></div>

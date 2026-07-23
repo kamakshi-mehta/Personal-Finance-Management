@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { TrendingUp, Percent, ArrowUpRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const StockMarket = () => {
-  const [stockHoldings, setStockHoldings] = useState([]);
+  const [stockHoldings, setStockHoldings] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_stocks')) || [];
+  });
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -11,6 +13,11 @@ const StockMarket = () => {
   const [quantity, setQuantity] = useState('');
   const [avgPrice, setAvgPrice] = useState('');
   const [currentPrice, setCurrentPrice] = useState('');
+
+  const saveStocks = (stocks) => {
+    setStockHoldings(stocks);
+    localStorage.setItem('wealth_stocks', JSON.stringify(stocks));
+  };
 
   const handleAddStock = (e) => {
     e.preventDefault();
@@ -32,7 +39,7 @@ const StockMarket = () => {
       pnl: `${pnlSign}${percentDiff.toFixed(1)}%`,
     };
 
-    setStockHoldings([...stockHoldings, newStock]);
+    saveStocks([...stockHoldings, newStock]);
     setTicker('');
     setCompanyName('');
     setQuantity('');
@@ -42,7 +49,7 @@ const StockMarket = () => {
   };
 
   const handleDeleteStock = (id) => {
-    setStockHoldings(stockHoldings.filter(stock => stock.id !== id));
+    saveStocks(stockHoldings.filter(stock => stock.id !== id));
   };
 
   // Calculations

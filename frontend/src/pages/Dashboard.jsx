@@ -1,37 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IndianRupee, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, Lightbulb, Edit2, Check } from 'lucide-react';
 
 const Dashboard = () => {
-  const [totalBalance, setTotalBalance] = useState(0);
-  const [monthlySpending, setMonthlySpending] = useState(0);
-  const [myInvestments, setMyInvestments] = useState(0);
-
-  // Editing states
+  const [baselineBalance, setBaselineBalance] = useState(() => {
+    return parseFloat(localStorage.getItem('wealth_baseline_balance')) || 0;
+  });
   const [editingBalance, setEditingBalance] = useState(false);
-  const [editingSpending, setEditingSpending] = useState(false);
-  const [editingInvestments, setEditingInvestments] = useState(false);
-
-  // Temporary form values
   const [tempBalance, setTempBalance] = useState('');
-  const [tempSpending, setTempSpending] = useState('');
-  const [tempInvestments, setTempInvestments] = useState('');
+
+  // Loaded state metrics from other sections
+  const [totalInvestments, setTotalInvestments] = useState(0);
+  const [totalSpending, setTotalSpending] = useState(0);
+  const [netWorth, setNetWorth] = useState(0);
+
+  useEffect(() => {
+    // 1. Fetch SIPs
+    const sips = JSON.parse(localStorage.getItem('wealth_sips')) || [];
+    const totalSip = sips.reduce((acc, curr) => acc + curr.amount, 0);
+
+    // 2. Fetch Stocks
+    const stocks = JSON.parse(localStorage.getItem('wealth_stocks')) || [];
+    const totalStocks = stocks.reduce((acc, curr) => acc + (curr.qty * curr.currentPrice), 0);
+
+    // 3. Fetch FDs
+    const fds = JSON.parse(localStorage.getItem('wealth_fds')) || [];
+    const totalFds = fds.reduce((acc, curr) => acc + curr.principal, 0);
+
+    // 4. Fetch Loans
+    const loans = JSON.parse(localStorage.getItem('wealth_loans')) || [];
+    const totalOutstandingDebt = loans.reduce((acc, curr) => acc + curr.outstanding, 0);
+    const totalEmi = loans.reduce((acc, curr) => acc + curr.emi, 0);
+
+    // 5. Fetch Transactions
+    const txs = JSON.parse(localStorage.getItem('wealth_transactions')) || [];
+    const totalSpentTxs = txs
+      .filter(tx => tx.amount < 0)
+      .reduce((acc, curr) => acc + Math.abs(curr.amount), 0);
+    const totalNetTxs = txs.reduce((acc, curr) => acc + curr.amount, 0);
+
+    // Calculations
+    const calculatedInvestments = totalSip + totalStocks + totalFds;
+    const calculatedSpending = totalSpentTxs + totalEmi;
+    const calculatedNetWorth = baselineBalance + calculatedInvestments - totalOutstandingDebt + totalNetTxs;
+
+    setTotalInvestments(calculatedInvestments);
+    setTotalSpending(calculatedSpending);
+    setNetWorth(calculatedNetWorth);
+  }, [baselineBalance]);
 
   const handleSaveBalance = (e) => {
     e.preventDefault();
-    setTotalBalance(parseFloat(tempBalance) || 0);
+    const val = parseFloat(tempBalance) || 0;
+    setBaselineBalance(val);
+    localStorage.setItem('wealth_baseline_balance', val);
     setEditingBalance(false);
-  };
-
-  const handleSaveSpending = (e) => {
-    e.preventDefault();
-    setMonthlySpending(parseFloat(tempSpending) || 0);
-    setEditingSpending(false);
-  };
-
-  const handleSaveInvestments = (e) => {
-    e.preventDefault();
-    setMyInvestments(parseFloat(tempInvestments) || 0);
-    setEditingInvestments(false);
   };
 
   return (
@@ -40,18 +62,18 @@ const Dashboard = () => {
       <div className="welcome-banner">
         <h2 className="welcome-title">Welcome to your Dashboard</h2>
         <p className="welcome-sub">
-          Track your balance, monthly spending, and check smart AI insights to manage your money. Click the edit icon to customize values.
+          A centralized overview of your financial profile. This page pulls data from your Mutual Funds, Stocks, FDs, Loans, and Transactions.
         </p>
       </div>
 
       {/* Cards Grid */}
       <div className="cards-grid">
         
-        {/* Card 1: Total Balance */}
+        {/* Card 1: Total Balance / Net Worth */}
         <div className="metric-card">
           <div className="flex justify-between items-start">
             <div className="flex-1 mr-2">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Balance</p>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Net Worth / Balance</p>
               
               {editingBalance ? (
                 <form onSubmit={handleSaveBalance} className="flex items-center space-x-2 mt-2">
@@ -59,7 +81,7 @@ const Dashboard = () => {
                     type="number"
                     value={tempBalance}
                     onChange={(e) => setTempBalance(e.target.value)}
-                    placeholder="e.g. 50000"
+                    placeholder="Baseline Cash"
                     className="border border-slate-200 rounded-lg px-2 py-1 text-sm bg-slate-50 w-28 focus:outline-none focus:border-blue-500"
                     required
                   />
@@ -70,11 +92,12 @@ const Dashboard = () => {
               ) : (
                 <div className="flex items-center space-x-2 mt-2">
                   <h3 className="text-3xl font-extrabold text-blue-950">
-                    ₹{totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ₹{netWorth.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </h3>
                   <button
-                    onClick={() => { setTempBalance(totalBalance); setEditingBalance(true); }}
+                    onClick={() => { setTempBalance(baselineBalance); setEditingBalance(true); }}
                     className="p-1 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                    title="Set baseline cash balance"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
@@ -87,7 +110,7 @@ const Dashboard = () => {
           </div>
           <div className="metric-change-up">
             <ArrowUpRight className="w-4 h-4 mr-1" />
-            <span>Set your active holdings balance</span>
+            <span>Includes Cash, Stocks, FDs, SIPs minus Debt</span>
           </div>
         </div>
 
@@ -95,35 +118,12 @@ const Dashboard = () => {
         <div className="metric-card">
           <div className="flex justify-between items-start">
             <div className="flex-1 mr-2">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Monthly Spending</p>
-              
-              {editingSpending ? (
-                <form onSubmit={handleSaveSpending} className="flex items-center space-x-2 mt-2">
-                  <input
-                    type="number"
-                    value={tempSpending}
-                    onChange={(e) => setTempSpending(e.target.value)}
-                    placeholder="e.g. 15000"
-                    className="border border-slate-200 rounded-lg px-2 py-1 text-sm bg-slate-50 w-28 focus:outline-none focus:border-blue-500"
-                    required
-                  />
-                  <button type="submit" className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                    <Check className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-              ) : (
-                <div className="flex items-center space-x-2 mt-2">
-                  <h3 className="text-3xl font-extrabold text-blue-950">
-                    ₹{monthlySpending.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </h3>
-                  <button
-                    onClick={() => { setTempSpending(monthlySpending); setEditingSpending(true); }}
-                    className="p-1 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Monthly Outflows</p>
+              <div className="flex items-center space-x-2 mt-2">
+                <h3 className="text-3xl font-extrabold text-blue-950">
+                  ₹{totalSpending.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h3>
+              </div>
             </div>
             <div className="card-icon-wrapper-sky">
               <Wallet className="w-5 h-5" />
@@ -131,7 +131,7 @@ const Dashboard = () => {
           </div>
           <div className="metric-change-down">
             <ArrowDownRight className="w-4 h-4 mr-1" />
-            <span>Set your monthly expense target</span>
+            <span>Sum of logged expenses & active EMIs</span>
           </div>
         </div>
 
@@ -140,34 +140,11 @@ const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div className="flex-1 mr-2">
               <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">My Investments</p>
-              
-              {editingInvestments ? (
-                <form onSubmit={handleSaveInvestments} className="flex items-center space-x-2 mt-2">
-                  <input
-                    type="number"
-                    value={tempInvestments}
-                    onChange={(e) => setTempInvestments(e.target.value)}
-                    placeholder="e.g. 20000"
-                    className="border border-slate-200 rounded-lg px-2 py-1 text-sm bg-slate-50 w-28 focus:outline-none focus:border-blue-500"
-                    required
-                  />
-                  <button type="submit" className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                    <Check className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-              ) : (
-                <div className="flex items-center space-x-2 mt-2">
-                  <h3 className="text-3xl font-extrabold text-blue-950">
-                    ₹{myInvestments.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </h3>
-                  <button
-                    onClick={() => { setTempInvestments(myInvestments); setEditingInvestments(true); }}
-                    className="p-1 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="flex items-center space-x-2 mt-2">
+                <h3 className="text-3xl font-extrabold text-blue-950">
+                  ₹{totalInvestments.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h3>
+              </div>
             </div>
             <div className="card-icon-wrapper-indigo">
               <TrendingUp className="w-5 h-5" />
@@ -175,7 +152,7 @@ const Dashboard = () => {
           </div>
           <div className="metric-change-up">
             <ArrowUpRight className="w-4 h-4 mr-1" />
-            <span>Set your active investment goals</span>
+            <span>Combined value of FDs, SIPs & Stocks</span>
           </div>
         </div>
       </div>

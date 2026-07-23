@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Wallet, Calendar, ArrowDownRight, Plus, Trash2, Lightbulb } from 'lucide-react';
 
 const Loans = () => {
-  const [activeLoans, setActiveLoans] = useState([]);
+  const [activeLoans, setActiveLoans] = useState(() => {
+    return JSON.parse(localStorage.getItem('wealth_loans')) || [];
+  });
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -11,6 +13,11 @@ const Loans = () => {
   const [outstanding, setOutstanding] = useState('');
   const [emi, setEmi] = useState('');
   const [rate, setRate] = useState('');
+
+  const saveLoans = (loans) => {
+    setActiveLoans(loans);
+    localStorage.setItem('wealth_loans', JSON.stringify(loans));
+  };
 
   const handleAddLoan = (e) => {
     e.preventDefault();
@@ -26,7 +33,7 @@ const Loans = () => {
       nextEmi: 'Aug 05, 2026',
     };
 
-    setActiveLoans([...activeLoans, newLoan]);
+    saveLoans([...activeLoans, newLoan]);
     setLoanName('');
     setPrincipal('');
     setOutstanding('');
@@ -36,7 +43,7 @@ const Loans = () => {
   };
 
   const handleDeleteLoan = (id) => {
-    setActiveLoans(activeLoans.filter(loan => loan.id !== id));
+    saveLoans(activeLoans.filter(loan => loan.id !== id));
   };
 
   // Calculations
@@ -192,7 +199,7 @@ const Loans = () => {
         </ul>
       </div>
 
-      <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Active Liabilities</h3>
+      <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">My Active Liabilities</h3>
 
       <div className="table-container">
         <table className="w-full text-left border-collapse">
