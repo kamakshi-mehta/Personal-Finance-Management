@@ -143,7 +143,7 @@ const Layout = () => {
       {/* Main Container */}
       <div className="flex-1 flex flex-col md:flex-row relative z-10">
         {/* Navigation Sidebar */}
-        <aside className="sidebar-container">
+        <aside className="sidebar-container bg-white/60">
           <Link
             to="/"
             className={location.pathname === '/' ? 'sidebar-link-active' : 'sidebar-link'}
@@ -166,6 +166,22 @@ const Layout = () => {
           >
             <TrendingUp className="w-5 h-5" />
             <span className="font-medium text-sm">Stock Market</span>
+          </Link>
+
+          <Link
+            to="/fixed-deposits"
+            className={location.pathname === '/fixed-deposits' ? 'sidebar-link-active' : 'sidebar-link'}
+          >
+            <Coins className="w-5 h-5" />
+            <span className="font-medium text-sm">Fixed Deposits (FD)</span>
+          </Link>
+
+          <Link
+            to="/loans"
+            className={location.pathname === '/loans' ? 'sidebar-link-active' : 'sidebar-link'}
+          >
+            <Percent className="w-5 h-5" />
+            <span className="font-medium text-sm">Loans & EMIs</span>
           </Link>
 
           <Link
