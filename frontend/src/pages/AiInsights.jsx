@@ -32,11 +32,11 @@ const AiInsights = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
-          <Cpu className="text-indigo-400 w-7 h-7" />
+        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <Cpu className="text-blue-600 w-7 h-7" />
           AI Microservice & System Status
         </h2>
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="text-slate-500 text-sm mt-1">
           Verify data communication flow: Frontend (Vite) ⇄ Backend (Express) ⇄ AI Service (FastAPI).
         </p>
       </div>
@@ -45,66 +45,69 @@ const AiInsights = () => {
         <button
           onClick={fetchStatus}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:opacity-50 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/20 cursor-pointer transition-all duration-300"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-semibold rounded-xl shadow-md shadow-blue-500/20 cursor-pointer transition-all duration-300"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 \${loading ? 'animate-spin' : ''}`} />
           Test System Communication
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-900 flex flex-col space-y-4">
+        {/* Express Response Card */}
+        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Layers className="text-emerald-400 w-4 h-4" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <Layers className="text-emerald-500 w-4 h-4" />
               Express Backend Health Check
             </span>
-            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/50">
               GET /api/health
             </span>
           </div>
 
-          <div className="flex-1 bg-slate-950/80 p-4 rounded-xl border border-slate-900 font-mono text-xs text-slate-300 overflow-x-auto min-h-[160px] flex items-center justify-center">
+          <div className="flex-1 bg-slate-900 p-4 rounded-xl border border-slate-800 font-mono text-xs text-blue-300 overflow-x-auto min-h-[160px] flex items-center justify-center">
             {loading ? (
               <span className="text-slate-500 animate-pulse">Requesting backend...</span>
             ) : backendResponse ? (
               <pre className="w-full text-left">{JSON.stringify(backendResponse, null, 2)}</pre>
             ) : (
-              <span className="text-slate-600">No data. Click Test Connection to initiate.</span>
+              <span className="text-slate-500">No data. Click Test Connection to initiate.</span>
             )}
           </div>
         </div>
 
-        <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-900 flex flex-col space-y-4">
+        {/* FastAPI Response Card */}
+        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Sparkles className="text-indigo-400 w-4 h-4" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <Sparkles className="text-blue-500 w-4 h-4" />
               FastAPI AI Communication Check
             </span>
-            <span className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20">
+            <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200/50">
               GET /api/ai-status
             </span>
           </div>
 
-          <div className="flex-1 bg-slate-950/80 p-4 rounded-xl border border-slate-900 font-mono text-xs text-slate-300 overflow-x-auto min-h-[160px] flex items-center justify-center">
+          <div className="flex-1 bg-slate-900 p-4 rounded-xl border border-slate-800 font-mono text-xs text-blue-300 overflow-x-auto min-h-[160px] flex items-center justify-center">
             {loading ? (
               <span className="text-slate-500 animate-pulse">Pinging FastAPI via Express...</span>
             ) : aiResponse ? (
               <pre className="w-full text-left">{JSON.stringify(aiResponse, null, 2)}</pre>
             ) : (
-              <span className="text-slate-600">No data. Click Test Connection to initiate.</span>
+              <span className="text-slate-500">No data. Click Test Connection to initiate.</span>
             )}
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-indigo-950/20 via-slate-900/40 to-slate-900/40 p-6 rounded-2xl border border-slate-900 flex flex-col space-y-3">
-        <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-          <Terminal className="text-indigo-400 w-4.5 h-4.5" />
+      {/* Simple AI Insight simulation */}
+      <div className="bg-gradient-to-r from-blue-50/50 via-white to-slate-100/50 p-6 rounded-2xl border border-slate-200/80 flex flex-col space-y-3 shadow-sm">
+        <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+          <Terminal className="text-blue-600 w-4.5 h-4.5" />
           AI Microservice Capabilities
         </h3>
-        <p className="text-xs text-slate-400">
-          The FastAPI microservice is listening on port <code className="text-indigo-300 bg-slate-950 px-1 py-0.5 rounded">8000</code> and CORS is open for connection. When you proceed with Phase 2, you can create Python scripts to invoke generative financial analyses, forecast remaining balance based on MERN data, and push the calculations back into your Express API.
+        <p className="text-xs text-slate-500">
+          The FastAPI microservice is listening on port <code className="text-blue-700 bg-blue-50 px-1 py-0.5 rounded border border-blue-100/40">8000</code> and CORS is open for connection. When you proceed with Phase 2, you can create Python scripts to invoke generative financial analyses, forecast remaining balance based on MERN data, and push the calculations back into your Express API.
         </p>
       </div>
     </div>
