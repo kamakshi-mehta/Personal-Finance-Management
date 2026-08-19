@@ -18,6 +18,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import Calculators from './pages/Calculators';
 import Reports from './pages/Reports';
+import ErrorPage from './pages/ErrorPage';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="*" element={<ErrorPage />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
