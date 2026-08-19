@@ -3,18 +3,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
-import google.generativeai as genai
+import httpx
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Gemini if key exists
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    print("Gemini AI API configured successfully.")
+HF_API_TOKEN = os.getenv("HF_API_TOKEN")
+# Default open-source model: Llama 3 8B Instruct
+HF_MODEL = os.getenv("HF_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
+
+if HF_API_TOKEN:
+    print(f"Hugging Face AI configured using model: {HF_MODEL}")
 else:
-    print("Warning: GEMINI_API_KEY not found. Falling back to internal analytical models.")
+    print("Warning: HF_API_TOKEN not found. Falling back to internal analytical models.")
 
 app = FastAPI(title="PFM AI Microservice", version="1.0.0")
 
@@ -45,7 +46,7 @@ def health_check():
         "status": "ok",
         "service": "FastAPI AI Microservice",
         "description": "Personal Finance AI Assistant microservice is running",
-        "ai_provider_active": "Gemini" if GEMINI_API_KEY else "Internal Analytics Engine"
+        "ai_provider_active": "Hugging Face" if HF_API_TOKEN else "Internal Analytics Engine"
     }
 
 @app.post("/api/v1/insights")
@@ -57,46 +58,52 @@ async def generate_insights(payload: InsightRequest):
     strategy = payload.strategy
 
     # 1. Calculate Financial Health Score (out of 100)
-    # Savings Rate: higher is better (income - outflow) / income
     savings = income - outflow
     savings_rate = (savings / income) * 100
-
-    # Debt-to-Asset ratio or Debt weight
     debt_weight = (debt / (income * 12)) * 100  # Debt compared to annual salary
 
     score = 100
-    # Deduct for low savings rate
     if savings_rate < 10:
-      score -= 25
+        score -= 25
     elif savings_rate < 20:
-      score -= 15
+        score -= 15
     elif savings_rate < 30:
-      score -= 5
+        score -= 5
 
-    # Deduct for high debt-to-income
     if debt_weight > 50:
-      score -= 25
+        score -= 25
     elif debt_weight > 30:
-      score -= 15
+        score -= 15
     elif debt_weight > 10:
-      score -= 5
+        score -= 5
 
-    # Deduct for low investments
     if investments < income * 2:
-      score -= 15
+        score -= 15
     elif investments < income:
-      score -= 20
+        score -= 20
 
-    # Clamp score
     final_score = max(0, min(100, score))
 
-    # 2. Generate Fallback Analytics Data
     health_rating = "Excellent"
     if final_score < 50:
         health_rating = "Critical Needs Improvement"
     elif final_score < 75:
         health_rating = "Fair / Moderate"
 
+    # 2. Predictive Calculations
+    # Expense Prediction: outflow + 2% inflation adjustment projection
+    projected_expense = outflow * 1.02
+    # Savings Prediction: income - projected expense
+    projected_savings = max(0, income - projected_expense)
+
+    # Expected interest yield based on selected strategy
+    interest_rate = 10.0
+    if strategy == "Growth":
+        interest_rate = 14.0
+    elif strategy == "Safety":
+        interest_rate = 7.0
+
+    # 3. Generate Fallback Analytics Data
     debt_insights = ""
     if debt > 0:
         debt_insights = f"You have an outstanding debt liability of ₹{debt:,.2f}. Focus on accelerating debt paydown."
@@ -118,13 +125,16 @@ async def generate_insights(payload: InsightRequest):
         "debtAnalysis": debt_insights,
         "assetAllocation": allocation_insights,
         "budgetRecommendation": f"Maintain your monthly expenses below ₹{income * 0.5:,.0f} (50% of your earnings) to sustain a healthy savings rate of at least 30%.",
-        "investmentRecommendation": f"Consider investing your surplus savings of ₹{max(0, savings):,.0f} into low-cost SIP index funds or secure FDs to build stable monthly yields."
+        "investmentRecommendation": f"Consider investing your surplus savings of ₹{max(0, savings):,.0f} into low-cost SIP index funds or secure FDs to build stable monthly yields.",
+        "projectedExpense": round(projected_expense, 2),
+        "projectedSavings": round(projected_savings, 2),
+        "expectedRate": interest_rate,
+        "initialInvested": investments
     }
 
-    # 3. Augment with Gemini AI if Key is Configured
-    if GEMINI_API_KEY:
+    # 4. Integrate Hugging Face Inference API if token is configured
+    if HF_API_TOKEN:
         try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
             prompt = f"""
             You are a professional, user-friendly personal finance advisor. 
             Analyze the following monthly financial snapshot of a middle-class user:
@@ -143,21 +153,42 @@ async def generate_insights(payload: InsightRequest):
 
             Keep your entire response concise, positive, human-like, and direct. Do not mention API constraints.
             """
-            response = model.generate_content(prompt)
-            if response.text:
-                # Parse or split generated text into clean sections
-                paragraphs = [p.strip() for p in response.text.split("\n\n") if p.strip()]
+            
+            headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+            payload_data = {
+                "inputs": prompt,
+                "parameters": {"max_new_tokens": 500, "temperature": 0.7}
+            }
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"https://api-inference.huggingface.co/models/{HF_MODEL}",
+                    headers=headers,
+                    json=payload_data
+                )
                 
-                # Replace recommendations with AI-generated text if successful
-                if len(paragraphs) >= 4:
-                    fallback_response["debtAnalysis"] = paragraphs[0]
-                    fallback_response["assetAllocation"] = paragraphs[1]
-                    fallback_response["budgetRecommendation"] = paragraphs[2]
-                    fallback_response["investmentRecommendation"] = paragraphs[3]
-                else:
-                    # Fallback text combination
-                    fallback_response["budgetRecommendation"] = response.text[:300] + "..."
+                if response.status_code == 200:
+                    res_data = response.json()
+                    generated_text = ""
+                    if isinstance(res_data, list) and len(res_data) > 0:
+                        generated_text = res_data[0].get("generated_text", "")
+                    elif isinstance(res_data, dict):
+                        generated_text = res_data.get("generated_text", "")
+
+                    # Strip prompt if it was echoed back by HF
+                    if generated_text.startswith(prompt):
+                        generated_text = generated_text[len(prompt):].strip()
+
+                    # Parse response into paragraphs
+                    paragraphs = [p.strip() for p in generated_text.split("\n\n") if p.strip()]
+                    if len(paragraphs) >= 4:
+                        fallback_response["debtAnalysis"] = paragraphs[0]
+                        fallback_response["assetAllocation"] = paragraphs[1]
+                        fallback_response["budgetRecommendation"] = paragraphs[2]
+                        fallback_response["investmentRecommendation"] = paragraphs[3]
+                    elif len(generated_text) > 50:
+                        fallback_response["budgetRecommendation"] = generated_text[:300] + "..."
         except Exception as e:
-            print("Gemini API call failed, using rule-based fallback:", e)
+            print("Hugging Face API call failed, using rule-based fallback:", e)
 
     return fallback_response
