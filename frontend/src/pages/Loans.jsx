@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Wallet, Calendar, ArrowDownRight, Plus, Trash2, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Wallet, Calendar, ArrowDownRight, Plus, Trash2, Lightbulb, Loader2, AlertCircle } from 'lucide-react';
+import axiosClient from '../api/axiosClient';
 
 const Loans = () => {
-  const [activeLoans, setActiveLoans] = useState(() => {
-    return JSON.parse(localStorage.getItem('wealth_loans')) || [];
-  });
+  const [activeLoans, setActiveLoans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   // Form states
   const [showForm, setShowForm] = useState(false);
@@ -13,37 +14,65 @@ const Loans = () => {
   const [outstanding, setOutstanding] = useState('');
   const [emi, setEmi] = useState('');
   const [rate, setRate] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const saveLoans = (loans) => {
-    setActiveLoans(loans);
-    localStorage.setItem('wealth_loans', JSON.stringify(loans));
+  const fetchLoans = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axiosClient.get('/loans');
+      setActiveLoans(res.data);
+    } catch (err) {
+      console.error('Error fetching loans:', err.message);
+      setError('Failed to fetch loan accounts from database');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddLoan = (e) => {
+  useEffect(() => {
+    fetchLoans();
+  }, []);
+
+  const handleAddLoan = async (e) => {
     e.preventDefault();
+    setError('');
     if (!loanName || !principal || !outstanding || !emi || !rate) return;
 
-    const newLoan = {
-      id: Date.now(),
-      name: loanName,
-      totalAmount: parseFloat(principal),
-      outstanding: parseFloat(outstanding),
-      emi: parseFloat(emi),
-      rate: rate.endsWith('%') ? rate : `${parseFloat(rate).toFixed(2)}%`,
-      nextEmi: 'Aug 05, 2026',
-    };
+    setSubmitting(true);
+    try {
+      await axiosClient.post('/loans', {
+        name: loanName,
+        totalAmount: parseFloat(principal),
+        outstanding: parseFloat(outstanding),
+        emi: parseFloat(emi),
+        rate: rate.endsWith('%') ? rate : `${parseFloat(rate).toFixed(2)}%`
+      });
 
-    saveLoans([...activeLoans, newLoan]);
-    setLoanName('');
-    setPrincipal('');
-    setOutstanding('');
-    setEmi('');
-    setRate('');
-    setShowForm(false);
+      setLoanName('');
+      setPrincipal('');
+      setOutstanding('');
+      setEmi('');
+      setRate('');
+      setShowForm(false);
+      fetchLoans();
+    } catch (err) {
+      console.error('Error saving loan:', err.message);
+      setError('Failed to save loan account');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDeleteLoan = (id) => {
-    saveLoans(activeLoans.filter(loan => loan.id !== id));
+  const handleDeleteLoan = async (id) => {
+    setError('');
+    try {
+      await axiosClient.delete(`/loans/${id}`);
+      fetchLoans();
+    } catch (err) {
+      console.error('Error deleting loan:', err.message);
+      setError('Failed to delete loan record');
+    }
   };
 
   // Calculations
@@ -69,6 +98,13 @@ const Loans = () => {
           <Plus className="w-4 h-4" /> {showForm ? 'Close Form' : 'Register Loan'}
         </button>
       </div>
+
+      {error && (
+        <div className="bg-rose-50 border border-rose-100 text-rose-600 p-3.5 rounded-xl flex items-start space-x-2 text-xs font-medium">
+          <AlertCircle className="w-4.5 h-4.5 mt-0.5 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       {/* Add New Loan Form */}
       {showForm && (
@@ -135,113 +171,124 @@ const Loans = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl cursor-pointer shadow-sm transition-colors"
+              disabled={submitting}
+              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl cursor-pointer shadow-sm transition-colors"
             >
-              Save Loan Account
+              {submitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Loan Account'
+              )}
             </button>
           </div>
         </form>
       )}
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="metric-card">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Outstanding Debt</p>
-              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">₹{totalOutstanding.toLocaleString('en-IN')}.00</h3>
+      {loading ? (
+        <div className="flex items-center justify-center p-12 bg-white rounded-2xl border border-slate-200">
+          <Loader2 className="w-6 h-6 text-blue-600 animate-spin mr-2" />
+          <span className="text-slate-500 text-sm font-semibold">Loading active liabilities...</span>
+        </div>
+      ) : (
+        <>
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="metric-card">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Outstanding Debt</p>
+                  <h3 className="text-3xl font-extrabold text-blue-950 mt-2">₹{totalOutstanding.toLocaleString('en-IN')}.00</h3>
+                </div>
+                <div className="card-icon-wrapper-sky">
+                  <Wallet className="w-5 h-5" />
+                </div>
+              </div>
+              <p className="text-xs text-sky-600 mt-4 font-medium flex items-center">
+                <ArrowDownRight className="w-4 h-4 mr-0.5" />
+                Total consolidated debt obligation
+              </p>
             </div>
-            <div className="card-icon-wrapper-sky">
-              <Wallet className="w-5 h-5" />
+
+            <div className="metric-card">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Monthly EMI</p>
+                  <h3 className="text-3xl font-extrabold text-blue-950 mt-2">₹{totalEmi.toLocaleString('en-IN')}.00</h3>
+                </div>
+                <div className="card-icon-wrapper-blue">
+                  <Calendar className="w-5 h-5" />
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 mt-4 font-medium">
+                Accumulated monthly installment dues
+              </p>
             </div>
           </div>
-          <p className="text-xs text-sky-600 mt-4 font-medium flex items-center">
-            <ArrowDownRight className="w-4 h-4 mr-0.5" />
-            Total consolidated debt obligation
-          </p>
-        </div>
 
-        <div className="metric-card">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Monthly EMI</p>
-              <h3 className="text-3xl font-extrabold text-blue-950 mt-2">₹{totalEmi.toLocaleString('en-IN')}.00</h3>
-            </div>
-            <div className="card-icon-wrapper-blue">
-              <Calendar className="w-5 h-5" />
-            </div>
+          {/* Guidelines Panel */}
+          <div className="guideline-box">
+            <h3 className="guideline-title">
+              <Lightbulb className="w-4 h-4 text-blue-700" />
+              Borrowing & Liability Guidelines
+            </h3>
+            <ul className="guideline-list">
+              <li className="guideline-item">
+                <strong>Debt-to-Income Ratio</strong>: Keep total monthly EMI payouts below <strong>35% to 40% of your net income</strong>.
+              </li>
+              <li className="guideline-item">
+                <strong>Good Debt vs. Bad Debt</strong>: Prioritize appreciating assets like <strong>home loans</strong> over depreciating assets like <strong>personal/car loans</strong>.
+              </li>
+            </ul>
           </div>
-          <p className="text-xs text-slate-500 mt-4 font-medium">
-            Accumulated monthly installment dues
-          </p>
-        </div>
-      </div>
 
-      {/* Guidelines Panel */}
-      <div className="guideline-box">
-        <h3 className="guideline-title">
-          <Lightbulb className="w-4 h-4 text-blue-700" />
-          Borrowing & Liability Guidelines
-        </h3>
-        <ul className="guideline-list">
-          <li className="guideline-item">
-            <strong>Debt-to-Income Ratio</strong>: Keep total monthly EMI payouts below <strong>35% to 40% of your net income</strong>.
-          </li>
-          <li className="guideline-item">
-            <strong>Good Debt vs. Bad Debt</strong>: Prioritize appreciating assets like <strong>home loans</strong> over depreciating assets like <strong>personal/car loans</strong>.
-          </li>
-          <li className="guideline-item">
-            <strong>Credit Score</strong>: Pay EMIs on time to maintain a <strong>high credit score (750+)</strong> for lower future loan rates.
-          </li>
-          <li className="guideline-item">
-            <strong>Prepayment Clauses</strong>: Check if the bank charges <strong>prepayment penalties</strong> on floating or fixed rate loans.
-          </li>
-        </ul>
-      </div>
+          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">My Active Liabilities</h3>
 
-      <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">My Active Liabilities</h3>
-
-      <div className="table-container">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="table-header-row">
-              <th className="table-header-cell">Loan Account / Bank</th>
-              <th className="table-header-cell">Principal Amount</th>
-              <th className="table-header-cell">Outstanding Amount</th>
-              <th className="table-header-cell">Monthly EMI</th>
-              <th className="table-header-cell">Interest Rate</th>
-              <th className="table-header-cell text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {activeLoans.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="p-8 text-center text-slate-400 text-sm">
-                  No active loan accounts registered. Click "Register Loan" to add your liabilities.
-                </td>
-              </tr>
-            ) : (
-              activeLoans.map((loan) => (
-                <tr key={loan.id} className="table-row">
-                  <td className="p-4 font-medium text-slate-800 text-sm">{loan.name}</td>
-                  <td className="p-4 text-sm text-slate-500">₹{loan.totalAmount.toLocaleString('en-IN')}</td>
-                  <td className="p-4 text-sm text-slate-700 font-semibold">₹{loan.outstanding.toLocaleString('en-IN')}</td>
-                  <td className="p-4 text-sm text-blue-600 font-semibold">₹{loan.emi.toLocaleString('en-IN')}</td>
-                  <td className="p-4 text-sm text-slate-400">{loan.rate}</td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => handleDeleteLoan(loan.id)}
-                      className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4 inline" />
-                    </button>
-                  </td>
+          <div className="table-container">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="table-header-row">
+                  <th className="table-header-cell">Loan Account / Bank</th>
+                  <th className="table-header-cell">Principal Amount</th>
+                  <th className="table-header-cell">Outstanding Amount</th>
+                  <th className="table-header-cell">Monthly EMI</th>
+                  <th className="table-header-cell">Interest Rate</th>
+                  <th className="table-header-cell text-right">Actions</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {activeLoans.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="p-8 text-center text-slate-400 text-sm">
+                      No active loan accounts registered. Click "Register Loan" to add your liabilities.
+                    </td>
+                  </tr>
+                ) : (
+                  activeLoans.map((loan) => (
+                    <tr key={loan._id} className="table-row">
+                      <td className="p-4 font-medium text-slate-800 text-sm">{loan.name}</td>
+                      <td className="p-4 text-sm text-slate-500">₹{loan.totalAmount.toLocaleString('en-IN')}</td>
+                      <td className="p-4 text-sm text-slate-700 font-semibold">₹{loan.outstanding.toLocaleString('en-IN')}</td>
+                      <td className="p-4 text-sm text-blue-600 font-semibold">₹{loan.emi.toLocaleString('en-IN')}</td>
+                      <td className="p-4 text-sm text-slate-400">{loan.rate}</td>
+                      <td className="p-4 text-right">
+                        <button
+                          onClick={() => handleDeleteLoan(loan._id)}
+                          className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 inline" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -25,34 +25,40 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadDashboardData = async () => {
-      // 1. Fetch backend transactions (protected)
+      // 1. Fetch backend transactions, investments, and loans
       let transactionsList = [];
+      let investmentsList = [];
+      let loansList = [];
+
       try {
-        const res = await axiosClient.get('/transactions', { params: { limit: 50 } });
-        transactionsList = res.data.transactions || [];
+        const [txsRes, invsRes, loansRes] = await Promise.all([
+          axiosClient.get('/transactions', { params: { limit: 50 } }),
+          axiosClient.get('/investments'),
+          axiosClient.get('/loans')
+        ]);
+
+        transactionsList = txsRes.data.transactions || [];
+        investmentsList = invsRes.data || [];
+        loansList = loansRes.data || [];
+
         setRecentTransactions(transactionsList.slice(0, 5));
       } catch (err) {
-        console.error('Error fetching dashboard transactions:', err.message);
+        console.error('Error fetching dashboard database records:', err.message);
       }
 
-      // 2. Fetch SIPs from LocalStorage
-      const sips = JSON.parse(localStorage.getItem('wealth_sips')) || [];
+      // Filter investments
+      const sips = investmentsList.filter(inv => inv.type === 'mutual_fund');
+      const stocks = investmentsList.filter(inv => inv.type === 'stock');
+      const fds = investmentsList.filter(inv => inv.type === 'fixed_deposit');
+
+      // Calculate totals
       const totalSip = sips.reduce((acc, curr) => acc + curr.amount, 0);
+      const totalStocks = stocks.reduce((acc, curr) => acc + (curr.quantity * (curr.currentValue || curr.amount)), 0);
+      const totalFds = fds.reduce((acc, curr) => acc + curr.amount, 0);
 
-      // 3. Fetch Stocks from LocalStorage
-      const stocks = JSON.parse(localStorage.getItem('wealth_stocks')) || [];
-      const totalStocks = stocks.reduce((acc, curr) => acc + (curr.qty * curr.currentPrice), 0);
+      const totalOutstandingDebt = loansList.reduce((acc, curr) => acc + curr.outstanding, 0);
+      const totalEmi = loansList.reduce((acc, curr) => acc + curr.emi, 0);
 
-      // 4. Fetch FDs from LocalStorage
-      const fds = JSON.parse(localStorage.getItem('wealth_fds')) || [];
-      const totalFds = fds.reduce((acc, curr) => acc + curr.principal, 0);
-
-      // 5. Fetch Loans from LocalStorage
-      const loans = JSON.parse(localStorage.getItem('wealth_loans')) || [];
-      const totalOutstandingDebt = loans.reduce((acc, curr) => acc + curr.outstanding, 0);
-      const totalEmi = loans.reduce((acc, curr) => acc + curr.emi, 0);
-
-      // Calculations
       const calculatedInvestments = totalSip + totalStocks + totalFds;
       setTotalInvestments(calculatedInvestments);
       setTotalDebt(totalOutstandingDebt);
