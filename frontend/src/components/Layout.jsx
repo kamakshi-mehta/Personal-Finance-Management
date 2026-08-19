@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, Receipt, Cpu, Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee, Wallet, User 
+  LayoutDashboard, Receipt, Cpu, Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee, Wallet, User, Calculator, FileText
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -106,6 +106,22 @@ const Layout = () => {
             >
               <Cpu className="w-5 h-5" />
               <span className="font-medium text-sm">Smart AI Insights</span>
+            </Link>
+
+            <Link
+              to="/calculators"
+              className={location.pathname === '/calculators' ? 'sidebar-link-active' : 'sidebar-link'}
+            >
+              <Calculator className="w-5 h-5" />
+              <span className="font-medium text-sm">Calculators</span>
+            </Link>
+
+            <Link
+              to="/reports"
+              className={location.pathname === '/reports' ? 'sidebar-link-active' : 'sidebar-link'}
+            >
+              <FileText className="w-5 h-5" />
+              <span className="font-medium text-sm">Financial Reports</span>
             </Link>
 
             <Link

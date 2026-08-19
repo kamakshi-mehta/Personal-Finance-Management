@@ -16,6 +16,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import Calculators from './pages/Calculators';
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
               <Route path="budget" element={<BudgetPlanning />} />
               <Route path="transactions" element={<Transactions />} />
               <Route path="ai-insights" element={<AiInsights />} />
+              <Route path="calculators" element={<Calculators />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="profile" element={<Profile />} />
             </Route>
           </Route>
