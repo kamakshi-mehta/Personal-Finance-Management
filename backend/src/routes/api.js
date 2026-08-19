@@ -61,9 +61,7 @@ router.get('/ai-status', async (req, res) => {
   }
 });
 
-/* =========================================================================
-   TRANSACTIONS CRUD
-   ========================================================================= */
+// Transactions CRUD
 
 router.get('/transactions', protect, async (req, res) => {
   try {
@@ -158,9 +156,7 @@ router.delete('/transactions/:id', protect, async (req, res) => {
   }
 });
 
-/* =========================================================================
-   BUDGETS CRUD
-   ========================================================================= */
+// Budgets CRUD
 
 router.get('/budgets', protect, async (req, res) => {
   try {
@@ -202,9 +198,7 @@ router.delete('/budgets/:id', protect, async (req, res) => {
   }
 });
 
-/* =========================================================================
-   SAVINGS GOALS CRUD
-   ========================================================================= */
+// Savings Goals CRUD
 
 router.get('/savings', protect, async (req, res) => {
   try {
@@ -264,9 +258,7 @@ router.delete('/savings/:id', protect, async (req, res) => {
   }
 });
 
-/* =========================================================================
-   INVESTMENTS CRUD
-   ========================================================================= */
+// Investments CRUD
 
 router.get('/investments', protect, async (req, res) => {
   try {
@@ -315,9 +307,7 @@ router.delete('/investments/:id', protect, async (req, res) => {
   }
 });
 
-/* =========================================================================
-   LOANS CRUD
-   ========================================================================= */
+// Loans CRUD
 
 router.get('/loans', protect, async (req, res) => {
   try {
@@ -361,9 +351,7 @@ router.delete('/loans/:id', protect, async (req, res) => {
   }
 });
 
-/* =========================================================================
-   SEED DEMO DATA
-   ========================================================================= */
+// Seed Mock Demo Data
 
 router.post('/seed', protect, async (req, res) => {
   try {
@@ -432,9 +420,7 @@ router.post('/seed', protect, async (req, res) => {
   }
 });
 
-/* =========================================================================
-   AI INSIGHTS ENDPOINT
-   ========================================================================= */
+// AI Insights API
 
 router.get('/ai-insights', protect, async (req, res) => {
   try {
