@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Receipt, Cpu, Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee, Wallet, User, Calculator, FileText
@@ -9,16 +9,8 @@ const Layout = () => {
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
 
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('wealth_dark_mode') === 'true';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('wealth_dark_mode', darkMode);
-  }, [darkMode]);
-
   return (
-    <div className={`theme-container ${darkMode ? 'dark-theme' : ''}`}>
+    <div className="theme-container">
       
       {/* Subtle Floating Money/Investment Symbols in Background */}
       <div className="bg-symbols-layer">
@@ -31,7 +23,7 @@ const Layout = () => {
       </div>
 
       {/* Header */}
-      <header className="theme-header flex items-center justify-between">
+      <header className="theme-header">
         <div className="flex items-center space-x-3">
           <div className="logo-accent">
             <Cpu className="w-6 h-6" />
@@ -45,14 +37,6 @@ const Layout = () => {
             </p>
           </div>
         </div>
-
-        {/* Simple Theme Toggle Switch */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer transition-colors"
-        >
-          {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
-        </button>
       </header>
 
       {/* Main Container */}
