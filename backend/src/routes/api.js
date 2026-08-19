@@ -432,4 +432,68 @@ router.post('/seed', protect, async (req, res) => {
   }
 });
 
+/* =========================================================================
+   AI INSIGHTS ENDPOINT
+   ========================================================================= */
+
+router.get('/ai-insights', protect, async (req, res) => {
+  try {
+    const strategy = req.query.strategy || 'Balanced';
+    const userId = req.user._id;
+
+    // 1. Load user records from MongoDB
+    const [txs, invs, loans] = await Promise.all([
+      Transaction.find({ user: userId }),
+      Investment.find({ user: userId }),
+      Loan.find({ user: userId })
+    ]);
+
+    // 2. Aggregate metrics
+    const totalIncome = txs
+      .filter(t => t.type === 'income')
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalExpense = txs
+      .filter(t => t.type === 'expense')
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalSip = invs.filter(i => i.type === 'mutual_fund').reduce((acc, curr) => acc + curr.amount, 0);
+    const totalStocks = invs.filter(i => i.type === 'stock').reduce((acc, curr) => acc + (curr.quantity * (curr.currentValue || curr.amount)), 0);
+    const totalFds = invs.filter(i => i.type === 'fixed_deposit').reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalInvestments = totalSip + totalStocks + totalFds;
+    const totalDebt = loans.reduce((acc, curr) => acc + curr.outstanding, 0);
+    const totalEmi = loans.reduce((acc, curr) => acc + curr.emi, 0);
+
+    // Total monthly outflows include expenses + EMIs
+    const monthlyOutflow = totalExpense + totalEmi;
+
+    // 3. Make POST request to FastAPI AI service
+    const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+    const response = await fetch(`${aiServiceUrl}/api/v1/insights`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        income: totalIncome || 60000, // seed fallback if new user
+        outflow: monthlyOutflow || 30000,
+        investments: totalInvestments || 0,
+        debt: totalDebt || 0,
+        strategy: strategy
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('AI Service responded with an error');
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error contacting AI Service:', error.message);
+    res.status(500).json({ message: 'Error generating AI insights', error: error.message });
+  }
+});
+
 export default router;
