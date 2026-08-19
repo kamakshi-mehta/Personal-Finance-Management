@@ -7,6 +7,13 @@ const StockMarket = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Demat Details States
+  const [dpId, setDpId] = useState(() => localStorage.getItem('wealth_demat_dp_id') || '');
+  const [mobileNum, setMobileNum] = useState(() => localStorage.getItem('wealth_demat_mobile') || '');
+  const [editingDemat, setEditingDemat] = useState(false);
+  const [tempDpId, setTempDpId] = useState('');
+  const [tempMobile, setTempMobile] = useState('');
+
   // Form states
   const [showForm, setShowForm] = useState(false);
   const [ticker, setTicker] = useState('');
@@ -102,6 +109,82 @@ const StockMarket = () => {
         >
           <Plus className="w-4 h-4" /> {showForm ? 'Close Form' : 'Add Holding'}
         </button>
+      </div>
+
+      {/* Demat Details Card */}
+      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            <TrendingUp className="text-blue-600 w-4 h-4" /> Demat Account Credentials
+          </h3>
+          {!editingDemat && (
+            <button
+              onClick={() => {
+                setTempDpId(dpId);
+                setTempMobile(mobileNum);
+                setEditingDemat(true);
+              }}
+              className="text-xs text-blue-600 font-bold hover:underline cursor-pointer"
+            >
+              {dpId || mobileNum ? 'Edit Demat Info' : 'Add Demat Info'}
+            </button>
+          )}
+        </div>
+
+        {editingDemat ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setDpId(tempDpId);
+              setMobileNum(tempMobile);
+              localStorage.setItem('wealth_demat_dp_id', tempDpId);
+              localStorage.setItem('wealth_demat_mobile', tempMobile);
+              setEditingDemat(false);
+            }}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
+          >
+            <div className="flex flex-col space-y-1">
+              <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">DP ID (Demat Account No.)</label>
+              <input
+                type="text"
+                placeholder="e.g. 1208160001234567"
+                value={tempDpId}
+                onChange={(e) => setTempDpId(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Demat Registered Mobile</label>
+              <input
+                type="text"
+                placeholder="e.g. +91 9876543210"
+                value={tempMobile}
+                onChange={(e) => setTempMobile(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs bg-slate-50 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg cursor-pointer"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingDemat(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-lg cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="text-xs text-slate-500 flex flex-wrap gap-x-6 gap-y-1 font-medium">
+            <span>DP ID: <strong className="text-slate-800">{dpId || 'Not linked'}</strong></span>
+            <span>Mobile: <strong className="text-slate-800">{mobileNum || 'Not linked'}</strong></span>
+          </div>
+        )}
       </div>
 
       {error && (
