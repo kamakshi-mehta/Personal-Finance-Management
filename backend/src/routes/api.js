@@ -31,7 +31,7 @@ router.get('/health', async (req, res) => {
 
 // Check status of AI Microservice
 router.get('/ai-status', async (req, res) => {
-  const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+  const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
   try {
     const start = Date.now();
     const response = await fetch(`${aiServiceUrl}/health`);
@@ -469,7 +469,7 @@ router.get('/ai-insights', protect, async (req, res) => {
     const monthlyOutflow = totalExpense + totalEmi;
 
     // 3. Make POST request to FastAPI AI service
-    const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+    const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
     const response = await fetch(`${aiServiceUrl}/api/v1/insights`, {
       method: 'POST',
       headers: {
