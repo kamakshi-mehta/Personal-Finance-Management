@@ -101,14 +101,6 @@ const Layout = () => {
             </Link>
 
             <Link
-              to="/ai-insights"
-              className={location.pathname === '/ai-insights' ? 'sidebar-link-active' : 'sidebar-link'}
-            >
-              <Cpu className="w-5 h-5" />
-              <span className="font-medium text-sm">Smart AI Insights</span>
-            </Link>
-
-            <Link
               to="/calculators"
               className={location.pathname === '/calculators' ? 'sidebar-link-active' : 'sidebar-link'}
             >
@@ -122,6 +114,14 @@ const Layout = () => {
             >
               <FileText className="w-5 h-5" />
               <span className="font-medium text-sm">Financial Reports</span>
+            </Link>
+
+            <Link
+              to="/ai-insights"
+              className={location.pathname === '/ai-insights' ? 'sidebar-link-active' : 'sidebar-link'}
+            >
+              <Cpu className="w-5 h-5" />
+              <span className="font-medium text-sm">Smart AI Insights</span>
             </Link>
 
             <Link
