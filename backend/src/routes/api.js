@@ -361,4 +361,75 @@ router.delete('/loans/:id', protect, async (req, res) => {
   }
 });
 
+/* =========================================================================
+   SEED DEMO DATA
+   ========================================================================= */
+
+router.post('/seed', protect, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Clear existing user data in planning collections
+    await Promise.all([
+      Transaction.deleteMany({ user: userId }),
+      Budget.deleteMany({ user: userId }),
+      SavingsGoal.deleteMany({ user: userId }),
+      Investment.deleteMany({ user: userId }),
+      Loan.deleteMany({ user: userId })
+    ]);
+
+    // 1. Seed Income & Expenses
+    const startOfThisMonth = new Date();
+    startOfThisMonth.setDate(1);
+    
+    const transactionsData = [
+      { user: userId, description: 'Monthly Salary Credit', amount: 60000, type: 'income', category: 'Salary', date: new Date() },
+      { user: userId, description: 'House Rent', amount: 15000, type: 'expense', category: 'Rent', date: new Date(new Date().setDate(2)) },
+      { user: userId, description: 'Monthly Grocery & Milk', amount: 12000, type: 'expense', category: 'Food', date: new Date(new Date().setDate(5)) },
+      { user: userId, description: 'Electricity & Gas Utility', amount: 4500, type: 'expense', category: 'Utilities', date: new Date(new Date().setDate(8)) },
+      { user: userId, description: 'Children School Tuition Fees', amount: 5000, type: 'expense', category: 'Education', date: new Date(new Date().setDate(10)) },
+      { user: userId, description: 'Petrol & Public Transit', amount: 3500, type: 'expense', category: 'Transportation', date: new Date(new Date().setDate(12)) },
+      { user: userId, description: 'Family Health Check & Medicines', amount: 2000, type: 'expense', category: 'Medical', date: new Date(new Date().setDate(15)) }
+    ];
+    await Transaction.insertMany(transactionsData);
+
+    // 2. Seed Budgets
+    const budgetsData = [
+      { user: userId, name: 'Food & Groceries Limit', limit: 12000, category: 'Food', color: 'bg-blue-600' },
+      { user: userId, name: 'Utilities Limit', limit: 5000, category: 'Utilities', color: 'bg-indigo-600' },
+      { user: userId, name: 'Transit Limit', limit: 4000, category: 'Transportation', color: 'bg-sky-500' }
+    ];
+    await Budget.insertMany(budgetsData);
+
+    // 3. Seed Savings Goals
+    const savingsData = [
+      { user: userId, name: 'Emergency Fund', targetAmount: 150000, currentAmount: 45000, targetDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) },
+      { user: userId, name: 'Children College Saving', targetAmount: 300000, currentAmount: 60000, targetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) }
+    ];
+    await SavingsGoal.insertMany(savingsData);
+
+    // 4. Seed Investments
+    const investmentsData = [
+      { user: userId, name: 'ELSS Tax Saver Fund SIP', type: 'mutual_fund', amount: 3000, interestRate: 15.2, date: new Date() },
+      { user: userId, name: 'State Bank of India FD', type: 'fixed_deposit', amount: 50000, interestRate: 6.8, maturityDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) },
+      { user: userId, name: 'TATA MOTORS', type: 'stock', amount: 950, quantity: 15, currentValue: 980 }
+    ];
+    await Investment.insertMany(investmentsData);
+
+    // 5. Seed Loans
+    await Loan.create({
+      user: userId,
+      name: 'Two Wheeler Loan EMI',
+      totalAmount: 80000,
+      outstanding: 35000,
+      emi: 2500,
+      rate: '10.50%'
+    });
+
+    res.json({ message: 'Middle-class family sample financial figures seeded successfully!' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error seeding demo data', error: error.message });
+  }
+});
+
 export default router;
