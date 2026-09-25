@@ -157,27 +157,6 @@ const Layout = () => {
               <span className="font-medium text-sm">My Profile</span>
             </Link>
           </div>
-
-          {/* User Profile Card */}
-          {user && (
-            <div className="mt-auto border-t border-slate-100 pt-4 pb-2 px-1 flex flex-col space-y-3">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-extrabold text-xs">
-                  {user.name ? user.name[0].toUpperCase() : 'U'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-800 truncate">{user.name}</p>
-                  <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
-                </div>
-              </div>
-              <button
-                onClick={logout}
-                className="w-full text-left py-1.5 px-3 bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-600 font-semibold text-xs rounded-lg transition-colors cursor-pointer border border-slate-100"
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
         </aside>
 
         {/* Content Outlet */}
