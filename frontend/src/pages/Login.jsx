@@ -73,7 +73,7 @@ const Login = () => {
               </span>
               <input
                 type="email"
-                placeholder="you@example.com"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-slate-50"
@@ -95,7 +95,7 @@ const Login = () => {
               </span>
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-slate-50"
