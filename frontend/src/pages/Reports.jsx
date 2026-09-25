@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Printer, Loader2, AlertCircle, TrendingUp, Calendar, ShieldCheck, ShoppingCart } from 'lucide-react';
+import { FileText, Download, Printer, Loader2, AlertCircle, TrendingUp, Calendar, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 
 const Reports = () => {
@@ -177,12 +177,18 @@ const Reports = () => {
                         {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
                       </td>
                       <td className="table-cell">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 print:text-xs">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 ${
+                          isIncome ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                        }`}>
+                          {isIncome ? <ArrowDownLeft className="w-3 h-3 text-emerald-600" /> : <ArrowUpRight className="w-3 h-3 text-rose-600" />}
                           {tx.type}
                         </span>
                       </td>
-                      <td className={`p-4 text-sm font-semibold ${isIncome ? 'text-blue-700' : 'text-slate-700'}`}>
-                        {isIncome ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      <td className={`p-4 text-sm font-semibold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        <span className="flex items-center">
+                          {isIncome ? <ArrowDownLeft className="w-3.5 h-3.5 mr-0.5 text-emerald-600" /> : <ArrowUpRight className="w-3.5 h-3.5 mr-0.5 text-rose-600" />}
+                          {isIncome ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </span>
                       </td>
                     </tr>
                   );

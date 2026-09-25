@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IndianRupee, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, Lightbulb, Edit2, Check, ShieldCheck, ShoppingCart, Calendar } from 'lucide-react';
+import { IndianRupee, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, ArrowDownLeft, Lightbulb, Edit2, Check, Calendar } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 
 const Dashboard = () => {
@@ -380,10 +380,10 @@ const Dashboard = () => {
             ) : (
               recentTransactions.map((tx) => {
                 const isIncome = tx.type === 'income';
-                const Icon = isIncome ? ShieldCheck : ShoppingCart;
+                const Icon = isIncome ? ArrowDownLeft : ArrowUpRight;
                 const color = isIncome 
-                  ? 'text-blue-700 bg-blue-50 border border-blue-100/50' 
-                  : 'text-indigo-600 bg-indigo-50 border border-indigo-100/50';
+                  ? 'text-emerald-600 bg-emerald-50 border border-emerald-200/60' 
+                  : 'text-rose-600 bg-rose-50 border border-rose-200/60';
 
                 return (
                   <div key={tx._id} className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors border border-slate-50">
@@ -396,7 +396,12 @@ const Dashboard = () => {
                         <p className="text-[10px] text-slate-400 font-semibold uppercase">{tx.category}</p>
                       </div>
                     </div>
-                    <span className={`text-sm font-bold ${isIncome ? 'text-blue-700' : 'text-sky-600'}`}>
+                    <span className={`text-sm font-bold flex items-center ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {isIncome ? (
+                        <ArrowDownLeft className="w-3.5 h-3.5 mr-0.5" />
+                      ) : (
+                        <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
+                      )}
                       {isIncome ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN')}
                     </span>
                   </div>
