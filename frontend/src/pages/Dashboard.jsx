@@ -318,10 +318,10 @@ const Dashboard = () => {
 
               {/* Key legends */}
               <rect x="30" y="205" width="10" height="10" rx="2" fill="#2563eb" />
-              <text x="45" y="213" className="text-[10px] fill-slate-500 font-bold">Monthly Inflow (Income)</text>
+              <text x="45" y="213" className="text-[10px] fill-slate-500 font-bold">Monthly Credits</text>
 
               <rect x="200" y="205" width="10" height="10" rx="2" fill="#818cf8" />
-              <text x="215" y="213" className="text-[10px] fill-slate-500 font-bold">Monthly Outflow (Spending)</text>
+              <text x="215" y="213" className="text-[10px] fill-slate-500 font-bold">Monthly Debits</text>
             </svg>
           </div>
         </div>
@@ -334,14 +334,14 @@ const Dashboard = () => {
           
           <div className="space-y-4 flex-1 pt-2">
             <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500 font-medium">Income Inflow</span>
+              <span className="text-xs text-slate-500 font-medium">Credits</span>
               <span className="text-sm font-bold text-blue-600">
                 +₹{monthlyInflow.toLocaleString('en-IN')}
               </span>
             </div>
             
             <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500 font-medium">Expenses & EMIs</span>
+              <span className="text-xs text-slate-500 font-medium">Debits & EMIs</span>
               <span className="text-sm font-bold text-indigo-500">
                 -₹{monthlyOutflow.toLocaleString('en-IN')}
               </span>

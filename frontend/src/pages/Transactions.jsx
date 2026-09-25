@@ -285,8 +285,8 @@ const Transactions = () => {
             className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 bg-slate-50"
           >
             <option value="all">All Types</option>
-            <option value="income">Inflow (Income)</option>
-            <option value="expense">Outflow (Spending)</option>
+            <option value="income">Credit</option>
+            <option value="expense">Debit</option>
           </select>
         </div>
 
@@ -377,8 +377,8 @@ const Transactions = () => {
                               onChange={(e) => setEditType(e.target.value)}
                               className="border border-slate-200 rounded-lg px-2 py-1 text-sm bg-white w-full focus:outline-none"
                             >
-                              <option value="income">Inflow (Income)</option>
-                              <option value="expense">Outflow (Expense)</option>
+                              <option value="income">Credit</option>
+                              <option value="expense">Debit</option>
                             </select>
                           </td>
                           <td className="p-3">
@@ -432,7 +432,7 @@ const Transactions = () => {
                             isIncome ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 border border-rose-200/60'
                           }`}>
                             {isIncome ? <ArrowDownLeft className="w-3 h-3 text-emerald-600" /> : <ArrowUpRight className="w-3 h-3 text-rose-600" />}
-                            {isIncome ? 'Incoming' : 'Outgoing'}
+                            {isIncome ? 'Credit' : 'Debit'}
                           </span>
                         </td>
                         <td className={`p-4 text-sm font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>

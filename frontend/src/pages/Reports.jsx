@@ -127,11 +127,11 @@ const Reports = () => {
       {/* Grid of Report Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2">
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm print:border-slate-300">
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Income Inflow</p>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Credits</p>
           <p className="text-lg font-bold text-blue-700 mt-1">₹{totalInflow.toLocaleString('en-IN')}</p>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm print:border-slate-300">
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Expense Outflow</p>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Debits</p>
           <p className="text-lg font-bold text-indigo-500 mt-1">₹{totalOutflow.toLocaleString('en-IN')}</p>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm print:border-slate-300">
@@ -181,7 +181,7 @@ const Reports = () => {
                           isIncome ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
                         }`}>
                           {isIncome ? <ArrowDownLeft className="w-3 h-3 text-emerald-600" /> : <ArrowUpRight className="w-3 h-3 text-rose-600" />}
-                          {tx.type}
+                          {isIncome ? 'Credit' : 'Debit'}
                         </span>
                       </td>
                       <td className={`p-4 text-sm font-semibold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>
