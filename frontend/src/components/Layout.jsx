@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, Receipt, Cpu, Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee, Wallet, User, Calculator, FileText
+  LayoutDashboard, Receipt, Cpu, Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee, Wallet, User, Calculator, FileText, LogOut
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -36,6 +36,31 @@ const Layout = () => {
               Simple Money & Investment Manager
             </p>
           </div>
+        </div>
+
+        {/* User Info & Sign Out Button on the Right */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 text-right">
+            <div className="hidden sm:block">
+              <p className="text-xs font-bold text-slate-800 leading-tight">
+                {user?.name || 'Kamakshi Mehta'}
+              </p>
+              <p className="text-[11px] text-slate-500 leading-tight">
+                {user?.email || 'kamakshi@example.com'}
+              </p>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 text-blue-600 font-bold text-xs flex items-center justify-center shadow-xs">
+              {(user?.name ? user.name[0] : 'K').toUpperCase()}
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+            title="Sign Out"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </header>
 
