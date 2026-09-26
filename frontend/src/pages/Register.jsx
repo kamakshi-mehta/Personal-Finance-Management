@@ -59,9 +59,7 @@ const Register = () => {
       <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-xl p-8 relative z-10 space-y-6">
         {/* Header/Logo */}
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="logo-accent p-3 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100">
-            <Cpu className="w-7 h-7" />
-          </div>
+          <img src="/logo.png" alt="Personal Finance Logo" className="w-16 h-16 object-contain rounded-2xl shadow-xs" />
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create Your Account</h2>
           <p className="text-sm text-slate-500">Sign up in seconds to start tracking your finances</p>
         </div>

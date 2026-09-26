@@ -25,9 +25,7 @@ const Layout = () => {
       {/* Header */}
       <header className="theme-header">
         <div className="flex items-center space-x-3">
-          <div className="logo-accent">
-            <Cpu className="w-6 h-6" />
-          </div>
+          <img src="/logo.png" alt="Personal Finance Logo" className="w-10 h-10 object-contain rounded-xl shadow-xs" />
           <div>
             <h1 className="logo-text">
               WealthAI
