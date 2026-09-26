@@ -482,4 +482,67 @@ router.get('/ai-insights', protect, async (req, res) => {
   }
 });
 
+// Interactive AI Prompt API
+router.post('/ai-ask', protect, async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt || !prompt.trim()) {
+      return res.status(400).json({ message: 'Please provide a valid question or prompt.' });
+    }
+
+    const userId = req.user._id;
+
+    // Load user records from MongoDB
+    const [txs, invs, loans] = await Promise.all([
+      Transaction.find({ user: userId }),
+      Investment.find({ user: userId }),
+      Loan.find({ user: userId })
+    ]);
+
+    // Aggregate key financial numbers
+    const totalIncome = txs
+      .filter(t => t.type === 'income')
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalExpense = txs
+      .filter(t => t.type === 'expense')
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalSip = invs.filter(i => i.type === 'mutual_fund').reduce((acc, curr) => acc + curr.amount, 0);
+    const totalStocks = invs.filter(i => i.type === 'stock').reduce((acc, curr) => acc + (curr.quantity * (curr.currentValue || curr.amount)), 0);
+    const totalFds = invs.filter(i => i.type === 'fixed_deposit').reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalInvestments = totalSip + totalStocks + totalFds;
+    const totalDebt = loans.reduce((acc, curr) => acc + curr.outstanding, 0);
+    const totalEmi = loans.reduce((acc, curr) => acc + curr.emi, 0);
+    const monthlyOutflow = totalExpense + totalEmi;
+
+    // Call FastAPI microservice
+    const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
+    const response = await fetch(`${aiServiceUrl}/api/v1/ask`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: prompt.trim(),
+        income: totalIncome || 60000,
+        outflow: monthlyOutflow || 30000,
+        investments: totalInvestments || 0,
+        debt: totalDebt || 0
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('AI microservice responded with an error');
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error in /ai-ask route:', error.message);
+    res.status(500).json({ message: 'Error generating AI answer', error: error.message });
+  }
+});
+
 export default router;

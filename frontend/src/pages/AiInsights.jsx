@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, Sparkles, Lightbulb, TrendingUp, Landmark, Percent, Loader2, AlertCircle, TrendingDown, ArrowUpRight } from 'lucide-react';
+import { Cpu, Sparkles, Lightbulb, TrendingUp, Landmark, Percent, Loader2, AlertCircle, TrendingDown, ArrowUpRight, Send, Bot, MessageSquare } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 
 const AiInsights = () => {
@@ -10,6 +10,37 @@ const AiInsights = () => {
 
   // Local state for interactive slider rate
   const [sliderRate, setSliderRate] = useState(10);
+
+  // Interactive AI prompt state
+  const [userPrompt, setUserPrompt] = useState('');
+  const [promptAnswer, setPromptAnswer] = useState('');
+  const [asking, setAsking] = useState(false);
+  const [askError, setAskError] = useState('');
+
+  const samplePrompts = [
+    "How can I cut down on my monthly expenses?",
+    "Should I prioritize paying off debt or investing in SIPs?",
+    "How many months of emergency fund should I keep?",
+    "Suggest a simple 50/30/20 budget for my income"
+  ];
+
+  const handleAsk = async (e, customText) => {
+    if (e) e.preventDefault();
+    const query = (customText !== undefined ? customText : userPrompt).trim();
+    if (!query) return;
+
+    setAsking(true);
+    setAskError('');
+    try {
+      const res = await axiosClient.post('/ai-ask', { prompt: query });
+      setPromptAnswer(res.data.answer);
+    } catch (err) {
+      console.error('Error asking AI:', err.message);
+      setAskError('Could not get answer from AI. Please ensure the AI service is running.');
+    } finally {
+      setAsking(false);
+    }
+  };
 
   const fetchInsights = async (selectedStrategy) => {
     setLoading(true);
@@ -95,8 +126,101 @@ const AiInsights = () => {
           Smart AI Insights & Advisory
         </h2>
         <p className="text-slate-500 text-sm mt-1">
-          Personalized forecasting models, next-month expense forecasts, and investment compounding simulators.
+          Personalized forecasting models, interactive AI advisor, and investment compounding simulators.
         </p>
+      </div>
+
+      {/* Ask AI Advisor Interactive Prompt */}
+      <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-blue-100 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Ask AI Financial Advisor</h3>
+              <p className="text-xs text-slate-500">Ask customized advice powered by Hugging Face AI</p>
+            </div>
+          </div>
+          <span className="self-start sm:self-auto text-[11px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-semibold border border-blue-100">
+            Hugging Face AI Powered
+          </span>
+        </div>
+
+        <form onSubmit={handleAsk} className="space-y-3">
+          <textarea
+            rows={3}
+            value={userPrompt}
+            onChange={(e) => setUserPrompt(e.target.value)}
+            placeholder="e.g. How can I save ₹10,000 more every month with my current expenses?"
+            className="w-full p-3.5 text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-400 resize-none"
+          />
+
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-slate-400 font-medium mr-1">Suggestions:</span>
+              {samplePrompts.map((sample, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setUserPrompt(sample);
+                    handleAsk(null, sample);
+                  }}
+                  className="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200/60 transition-colors cursor-pointer"
+                >
+                  {sample}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              disabled={asking || !userPrompt.trim()}
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm ml-auto cursor-pointer"
+            >
+              {asking ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Thinking...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Ask AI</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+
+        {askError && (
+          <div className="bg-rose-50 border border-rose-100 text-rose-600 p-3 rounded-xl flex items-center space-x-2 text-xs font-medium">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{askError}</span>
+          </div>
+        )}
+
+        {promptAnswer && (
+          <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-100 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5 uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                AI Advisor Response
+              </span>
+              <button
+                type="button"
+                onClick={() => setPromptAnswer('')}
+                className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+            <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-line">
+              {promptAnswer}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Select Goal Accordion */}

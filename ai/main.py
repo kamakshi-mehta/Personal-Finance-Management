@@ -192,3 +192,66 @@ async def generate_insights(payload: InsightRequest):
             print("Hugging Face API call failed, using rule-based fallback:", e)
 
     return fallback_response
+
+class AskRequest(BaseModel):
+    prompt: str
+    income: float = 60000
+    outflow: float = 30000
+    investments: float = 0
+    debt: float = 0
+
+@app.post("/api/v1/ask")
+async def ask_advisor(payload: AskRequest):
+    user_prompt = payload.prompt.strip()
+    if not user_prompt:
+        return {"answer": "Please ask a question about your finances."}
+
+    # Query Hugging Face if token is configured
+    if HF_API_TOKEN:
+        try:
+            full_prompt = (
+                f"You are a helpful, simple personal finance advisor. "
+                f"User Profile: Monthly Income: Rs {payload.income}, Monthly Outflow: Rs {payload.outflow}, "
+                f"Investments: Rs {payload.investments}, Debt: Rs {payload.debt}. "
+                f"User Question: {user_prompt}\n\n"
+                f"Give a friendly, practical, and direct answer in 3 to 4 sentences:"
+            )
+
+            headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+            body = {
+                "inputs": full_prompt,
+                "parameters": {"max_new_tokens": 250, "temperature": 0.7}
+            }
+
+            async with httpx.AsyncClient(timeout=25.0) as client:
+                res = await client.post(
+                    f"https://api-inference.huggingface.co/models/{HF_MODEL}",
+                    headers=headers,
+                    json=body
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    text = ""
+                    if isinstance(data, list) and len(data) > 0:
+                        text = data[0].get("generated_text", "")
+                    elif isinstance(data, dict):
+                        text = data.get("generated_text", "")
+                    
+                    if text.startswith(full_prompt):
+                        text = text[len(full_prompt):].strip()
+                    if text:
+                        return {"answer": text}
+        except Exception as err:
+            print("Hugging Face ask error:", err)
+
+    # Simple fallback based on user's financial numbers
+    savings = max(0, payload.income - payload.outflow)
+    return {
+        "answer": (
+            f"Based on your current numbers (Monthly Income: ₹{payload.income:,.0f}, Outflow: ₹{payload.outflow:,.0f}), "
+            f"you have approximately ₹{savings:,.0f} surplus each month. "
+            f"To achieve this, maintain essential costs below 50% of your earnings, build a liquid emergency buffer, "
+            f"and allocate your surplus into low-cost index SIPs or fixed deposits."
+        )
+    }
+
