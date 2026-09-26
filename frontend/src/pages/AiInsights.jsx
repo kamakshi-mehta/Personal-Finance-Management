@@ -132,19 +132,13 @@ const AiInsights = () => {
 
       {/* Ask AI Advisor Interactive Prompt */}
       <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-blue-100 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">Ask AI Financial Advisor</h3>
-              <p className="text-xs text-slate-500">Ask customized advice powered by Hugging Face AI</p>
-            </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+            <Bot className="w-5 h-5" />
           </div>
-          <span className="self-start sm:self-auto text-[11px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-semibold border border-blue-100">
-            Hugging Face AI Powered
-          </span>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Ask AI Financial Advisor</h3>
+          </div>
         </div>
 
         <form onSubmit={handleAsk} className="space-y-3">
