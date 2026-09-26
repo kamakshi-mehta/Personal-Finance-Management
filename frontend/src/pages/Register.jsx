@@ -1,7 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Cpu, User, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -58,10 +59,16 @@ const Register = () => {
 
       <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-xl p-8 relative z-10 space-y-6">
         {/* Header/Logo */}
-        <div className="flex flex-col items-center space-y-2 text-center">
-          <img src="/logo.png" alt="Personal Finance Logo" className="w-16 h-16 object-contain rounded-2xl shadow-xs" />
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create Your Account</h2>
-          <p className="text-sm text-slate-500">Sign up in seconds to start tracking your finances</p>
+        <div className="flex flex-col items-center space-y-3 text-center">
+          <img 
+            src={logo} 
+            alt="Personal Finance Management Logo" 
+            className="w-24 h-20 object-contain mx-auto" 
+          />
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create Your Account</h2>
+            <p className="text-sm text-slate-500 mt-1">Sign up in seconds to start tracking your finances</p>
+          </div>
         </div>
 
         {/* Error Notification */}

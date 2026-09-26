@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Receipt, Cpu, Coins, PiggyBank, Landmark, Percent, TrendingUp, IndianRupee, Wallet, User, Calculator, FileText, LogOut
 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 
 const Layout = () => {
   const location = useLocation();
@@ -25,7 +26,7 @@ const Layout = () => {
       {/* Header */}
       <header className="theme-header">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" alt="Personal Finance Logo" className="w-10 h-10 object-contain rounded-xl shadow-xs" />
+          <img src={logo} alt="Personal Finance Logo" className="w-10 h-10 object-contain rounded-xl shadow-xs" />
           <div>
             <h1 className="logo-text">
               WealthAI

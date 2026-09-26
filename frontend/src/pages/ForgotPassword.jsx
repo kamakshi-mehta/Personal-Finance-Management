@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
-import { Cpu, Mail, Loader2, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Mail, Loader2, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -44,10 +45,16 @@ const ForgotPassword = () => {
 
       <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-xl p-8 relative z-10 space-y-6">
         {/* Header/Logo */}
-        <div className="flex flex-col items-center space-y-2 text-center">
-          <img src="/logo.png" alt="Personal Finance Logo" className="w-16 h-16 object-contain rounded-2xl shadow-xs" />
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Reset Your Password</h2>
-          <p className="text-sm text-slate-500">Provide your email address to generate a recovery link</p>
+        <div className="flex flex-col items-center space-y-3 text-center">
+          <img 
+            src={logo} 
+            alt="Personal Finance Management Logo" 
+            className="w-24 h-20 object-contain mx-auto" 
+          />
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Reset Your Password</h2>
+            <p className="text-sm text-slate-500 mt-1">Provide your email address to generate a recovery link</p>
+          </div>
         </div>
 
         {/* Error Notification */}
