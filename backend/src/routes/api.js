@@ -29,38 +29,6 @@ router.get('/health', async (req, res) => {
   });
 });
 
-// Check status of AI Microservice
-router.get('/ai-status', async (req, res) => {
-  const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
-  try {
-    const start = Date.now();
-    const response = await fetch(`${aiServiceUrl}/health`);
-    const duration = Date.now() - start;
-    if (response.ok) {
-      const data = await response.json();
-      return res.json({
-        status: 'Connected',
-        service: 'FastAPI AI Microservice',
-        latencyMs: duration,
-        response: data
-      });
-    } else {
-      return res.json({
-        status: 'Error',
-        service: 'FastAPI AI Microservice',
-        statusCode: response.status,
-        message: 'FastAPI responded but returned an error status code'
-      });
-    }
-  } catch (error) {
-    return res.json({
-      status: 'Disconnected',
-      service: 'FastAPI AI Microservice',
-      message: error.message
-    });
-  }
-});
-
 // Transactions CRUD
 
 router.get('/transactions', protect, async (req, res) => {
@@ -420,41 +388,35 @@ router.post('/seed', protect, async (req, res) => {
   }
 });
 
-// AI Insights API
+// Financial Aggregation Helper
+const getFinancialSummary = async (userId) => {
+  const [txs, invs, loans] = await Promise.all([
+    Transaction.find({ user: userId }),
+    Investment.find({ user: userId }),
+    Loan.find({ user: userId })
+  ]);
 
+  const income = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0) || 60000;
+  const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const emi = loans.reduce((s, l) => s + (l.emi || 0), 0);
+  const debt = loans.reduce((s, l) => s + (l.outstanding || 0), 0);
+  const investments = invs.reduce((s, i) => s + (i.amount || 0), 0);
+
+  return {
+    income,
+    outflow: (expense + emi) || 30000,
+    debt,
+    investments
+  };
+};
+
+// AI Insights API
 router.get('/ai-insights', protect, async (req, res) => {
   try {
     const strategy = req.query.strategy || 'Balanced';
-    const userId = req.user._id;
+    const { income, outflow, debt, investments } = await getFinancialSummary(req.user._id);
 
-    // 1. Load user records from MongoDB
-    const [txs, invs, loans] = await Promise.all([
-      Transaction.find({ user: userId }),
-      Investment.find({ user: userId }),
-      Loan.find({ user: userId })
-    ]);
-
-    // 2. Aggregate metrics
-    const totalIncome = txs
-      .filter(t => t.type === 'income')
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    const totalExpense = txs
-      .filter(t => t.type === 'expense')
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    const totalSip = invs.filter(i => i.type === 'mutual_fund').reduce((acc, curr) => acc + curr.amount, 0);
-    const totalStocks = invs.filter(i => i.type === 'stock').reduce((acc, curr) => acc + (curr.quantity * (curr.currentValue || curr.amount)), 0);
-    const totalFds = invs.filter(i => i.type === 'fixed_deposit').reduce((acc, curr) => acc + curr.amount, 0);
-
-    const totalInvestments = totalSip + totalStocks + totalFds;
-    const totalDebt = loans.reduce((acc, curr) => acc + curr.outstanding, 0);
-    const totalEmi = loans.reduce((acc, curr) => acc + curr.emi, 0);
-
-    // Total monthly outflows include expenses + EMIs
-    const monthlyOutflow = totalExpense + totalEmi;
-
-    // 3. Attempt to contact FastAPI microservice with a short timeout
+    // 1. Try FastAPI microservice (with 2.5s timeout)
     const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
     try {
       const controller = new AbortController();
@@ -462,34 +424,24 @@ router.get('/ai-insights', protect, async (req, res) => {
 
       const response = await fetch(`${aiServiceUrl}/api/v1/insights`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          income: totalIncome || 60000,
-          outflow: monthlyOutflow || 30000,
-          investments: totalInvestments || 0,
-          debt: totalDebt || 0,
-          strategy: strategy
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ income, outflow, investments, debt, strategy }),
         signal: controller.signal
       });
 
       clearTimeout(timeoutId);
 
       if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
+        return res.json(await response.json());
       }
-    } catch (microserviceErr) {
-      console.warn('FastAPI microservice unreachable or offline. Activating built-in financial analytics engine.');
+    } catch {
+      // Continue to built-in analytics engine
     }
 
-    // 4. BUILT-IN RESILIENT ANALYTICS ENGINE (Guarantees zero downtime on Render)
-    const income = Math.max(totalIncome || 60000, 1);
-    const savings = income - monthlyOutflow;
+    // 2. Built-in Analytics Engine
+    const savings = income - outflow;
     const savings_rate = (savings / income) * 100;
-    const debt_weight = (totalDebt / (income * 12)) * 100;
+    const debt_weight = (debt / (income * 12)) * 100;
 
     let score = 100;
     if (savings_rate < 10) score -= 25;
@@ -500,47 +452,40 @@ router.get('/ai-insights', protect, async (req, res) => {
     else if (debt_weight > 30) score -= 15;
     else if (debt_weight > 10) score -= 5;
 
-    if (totalInvestments < income * 2) score -= 15;
-    else if (totalInvestments < income) score -= 20;
+    if (investments < income) score -= 20;
+    else if (investments < income * 2) score -= 15;
 
     const final_score = Math.max(0, Math.min(100, score));
+    const health_rating = final_score >= 75 ? "Excellent" : final_score >= 50 ? "Fair / Moderate" : "Critical Needs Improvement";
 
-    let health_rating = "Excellent";
-    if (final_score < 50) health_rating = "Critical Needs Improvement";
-    else if (final_score < 75) health_rating = "Fair / Moderate";
+    const isGrowth = strategy === "Growth";
+    const isSafety = strategy === "Safety";
+    const interest_rate = isGrowth ? 14.0 : isSafety ? 7.0 : 10.0;
+    const allocation_insights = isGrowth
+      ? "Growth strategy: Allocate 70% in Equities/Stocks, 20% in Mutual Funds, and 10% in Fixed Deposits."
+      : isSafety
+      ? "Safety strategy: Prioritize FDs (70%), Debt Funds (20%), and hold minimal Equity (10%)."
+      : "Balanced strategy: Keep 50% in index mutual funds, 30% in FDs, and 20% in equity shares.";
 
-    let interest_rate = 10.0;
-    let allocation_insights = "Balanced strategy: Keep 50% in index mutual funds, 30% in FDs, and 20% in equity shares.";
-    if (strategy === "Growth") {
-      interest_rate = 14.0;
-      allocation_insights = "Growth strategy: Allocate 70% in Equities/Stocks, 20% in Mutual Funds, and 10% in Fixed Deposits.";
-    } else if (strategy === "Safety") {
-      interest_rate = 7.0;
-      allocation_insights = "Safety strategy: Prioritize FDs (70%), Debt Funds (20%), and hold minimal Equity (10%).";
-    }
-
-    const projected_expense = monthlyOutflow * 1.02;
+    const projected_expense = outflow * 1.02;
     const projected_savings = Math.max(0, income - projected_expense);
-
-    const debt_insights = totalDebt > 0
-      ? `You have an outstanding debt liability of ₹${totalDebt.toLocaleString('en-IN')}. Focus on accelerating debt paydown.`
-      : "Excellent! You are completely debt-free. Your cash reserves can go straight into compounding assets.";
 
     return res.json({
       healthScore: final_score,
       healthRating: health_rating,
       savingsRate: parseFloat(savings_rate.toFixed(1)),
-      debtAnalysis: debt_insights,
+      debtAnalysis: debt > 0
+        ? `You have an outstanding debt liability of ₹${debt.toLocaleString('en-IN')}. Focus on accelerating debt paydown.`
+        : "Excellent! You are completely debt-free. Your cash reserves can go straight into compounding assets.",
       assetAllocation: allocation_insights,
-      budgetRecommendation: `Maintain your monthly expenses below ₹${Math.round(income * 0.5).toLocaleString('en-IN')} (50% of your earnings) to sustain a healthy savings rate of at least 30%.`,
-      investmentRecommendation: `Consider investing your surplus savings of ₹${Math.max(0, Math.round(savings)).toLocaleString('en-IN')} into low-cost SIP index funds or secure FDs to build stable monthly yields.`,
+      budgetRecommendation: `Maintain your monthly expenses below ₹${Math.round(income * 0.5).toLocaleString('en-IN')} (50% of earnings) to sustain a healthy savings rate.`,
+      investmentRecommendation: `Consider investing your surplus savings of ₹${Math.max(0, Math.round(savings)).toLocaleString('en-IN')} into low-cost SIP index funds or secure FDs.`,
       projectedExpense: parseFloat(projected_expense.toFixed(2)),
       projectedSavings: parseFloat(projected_savings.toFixed(2)),
       expectedRate: interest_rate,
-      initialInvested: totalInvestments
+      initialInvested: investments
     });
   } catch (error) {
-    console.error('Error in /ai-insights route:', error.message);
     res.status(500).json({ message: 'Error generating AI insights', error: error.message });
   }
 });
@@ -550,32 +495,12 @@ router.post('/ai-ask', protect, async (req, res) => {
   try {
     const { prompt } = req.body;
     if (!prompt || !prompt.trim()) {
-      return res.status(400).json({ message: 'Please provide a valid question or prompt.' });
+      return res.status(400).json({ message: 'Please provide a valid question.' });
     }
 
-    const userId = req.user._id;
+    const { income, outflow, debt } = await getFinancialSummary(req.user._id);
 
-    // Load user records from MongoDB
-    const [txs, invs, loans] = await Promise.all([
-      Transaction.find({ user: userId }),
-      Investment.find({ user: userId }),
-      Loan.find({ user: userId })
-    ]);
-
-    // Aggregate key financial numbers
-    const totalIncome = txs
-      .filter(t => t.type === 'income')
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    const totalExpense = txs
-      .filter(t => t.type === 'expense')
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    const totalDebt = loans.reduce((acc, curr) => acc + curr.outstanding, 0);
-    const totalEmi = loans.reduce((acc, curr) => acc + curr.emi, 0);
-    const monthlyOutflow = totalExpense + totalEmi;
-
-    // Attempt to call FastAPI microservice with timeout
+    // 1. Try FastAPI microservice
     const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
     try {
       const controller = new AbortController();
@@ -583,58 +508,41 @@ router.post('/ai-ask', protect, async (req, res) => {
 
       const response = await fetch(`${aiServiceUrl}/api/v1/ask`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: prompt.trim(),
-          income: totalIncome || 60000,
-          outflow: monthlyOutflow || 30000,
-          investments: 0,
-          debt: totalDebt || 0
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt.trim(), income, outflow, investments: 0, debt }),
         signal: controller.signal
       });
 
       clearTimeout(timeoutId);
 
       if (response.ok) {
-        const data = await response.json();
-        return res.json(data);
+        return res.json(await response.json());
       }
-    } catch (microserviceErr) {
-      console.warn('FastAPI microservice unreachable for ask. Activating built-in financial advisor rule engine.');
+    } catch {
+      // Continue to built-in advisor
     }
 
-    // BUILT-IN EXPERT FINANCIAL ADVISOR RULES (Zero-downtime fallback)
+    // 2. Built-in Financial Advisor Rules
     const q = prompt.toLowerCase();
     let answer = "";
-    if (q.includes("cut") || q.includes("expense") || q.includes("save money") || q.includes("budget")) {
-      answer = `To optimize your monthly budget, audit recurring subscriptions, cap discretionary spending at 30% of your income (₹${Math.round((totalIncome || 60000) * 0.3).toLocaleString('en-IN')}), and automate a minimum 20% transfer to your savings account on payday before spending.`;
-    } else if (q.includes("debt") || q.includes("loan") || q.includes("emi") || q.includes("prioritize")) {
-      if (totalDebt > 0) {
-        answer = `With ₹${totalDebt.toLocaleString('en-IN')} in active debt, prioritize paying off high-interest loans first (the Avalanche method) or clear smaller balances (the Snowball method) while keeping a basic emergency fund. Avoid taking new debt until your EMI-to-income ratio is under 30%.`;
-      } else {
-        answer = `You are currently debt-free! Channel your monthly cash surplus directly into compounding assets like equity SIPs, index mutual funds, and short-term fixed deposits.`;
-      }
+    if (q.includes("cut") || q.includes("expense") || q.includes("save") || q.includes("budget")) {
+      answer = `To optimize your monthly budget, audit recurring subscriptions, cap discretionary spending at 30% of your income (₹${Math.round(income * 0.3).toLocaleString('en-IN')}), and automate a 20% transfer to your savings on payday.`;
+    } else if (q.includes("debt") || q.includes("loan") || q.includes("emi")) {
+      answer = debt > 0
+        ? `With ₹${debt.toLocaleString('en-IN')} in active debt, prioritize paying off high-interest loans first while keeping a basic emergency fund. Avoid taking new loans until your EMI ratio is under 30%.`
+        : `You are currently debt-free! Channel your monthly cash surplus directly into compounding assets like equity SIPs, index mutual funds, and fixed deposits.`;
     } else if (q.includes("emergency") || q.includes("buffer") || q.includes("fund")) {
-      const recBuffer = (monthlyOutflow || 30000) * 6;
-      answer = `Aim to maintain 3 to 6 months of living expenses in an easily accessible liquid fund or high-interest savings account. Based on your monthly outflow of ₹${(monthlyOutflow || 30000).toLocaleString('en-IN')}, your target emergency buffer should be approximately ₹${recBuffer.toLocaleString('en-IN')}.`;
+      answer = `Maintain 3 to 6 months of living expenses in an accessible emergency fund. Based on your monthly outflow of ₹${outflow.toLocaleString('en-IN')}, your target buffer is approximately ₹${(outflow * 6).toLocaleString('en-IN')}.`;
     } else if (q.includes("sip") || q.includes("invest") || q.includes("stock") || q.includes("fd")) {
-      answer = `For a balanced portfolio, diversify your savings: allocate 60% into low-cost broad-market index mutual funds (like Nifty 50) via monthly SIPs for inflation-beating long-term growth, and 40% into secure fixed deposits or debt funds for capital preservation.`;
+      answer = `For a balanced portfolio, diversify your savings: allocate 60% into low-cost index mutual funds (like Nifty 50) via monthly SIPs for long-term growth, and 40% into secure fixed deposits for capital safety.`;
     } else if (q.includes("50/30/20") || q.includes("rule")) {
-      const inc = totalIncome || 60000;
-      answer = `Following the 50/30/20 rule for your monthly income of ₹${inc.toLocaleString('en-IN')}: Allocate 50% (₹${Math.round(inc * 0.5).toLocaleString('en-IN')}) for Needs (rent, groceries, bills), 30% (₹${Math.round(inc * 0.3).toLocaleString('en-IN')}) for Wants (dining out, entertainment), and 20% (₹${Math.round(inc * 0.2).toLocaleString('en-IN')}) directly into Savings and Investments.`;
+      answer = `Following the 50/30/20 rule for your monthly income of ₹${income.toLocaleString('en-IN')}: 50% (₹${Math.round(income * 0.5).toLocaleString('en-IN')}) for Needs, 30% (₹${Math.round(income * 0.3).toLocaleString('en-IN')}) for Wants, and 20% (₹${Math.round(income * 0.2).toLocaleString('en-IN')}) into Savings and Investments.`;
     } else {
-      answer = `Financial Insight: Maintain a strict savings discipline by reviewing your cash flow regularly. With an estimated monthly income of ₹${(totalIncome || 60000).toLocaleString('en-IN')} and outflows of ₹${(monthlyOutflow || 30000).toLocaleString('en-IN')}, your net surplus can build significant wealth when systematically compounded into diversified index funds and secure deposits.`;
+      answer = `Review your cash flow regularly: With an estimated monthly income of ₹${income.toLocaleString('en-IN')} and outflows of ₹${outflow.toLocaleString('en-IN')}, investing your surplus systematically into diversified index funds and FDs will build lasting wealth.`;
     }
 
-    return res.json({
-      answer: answer,
-      timestamp: new Date()
-    });
+    return res.json({ answer, timestamp: new Date() });
   } catch (error) {
-    console.error('Error in /ai-ask route:', error.message);
     res.status(500).json({ message: 'Error generating AI answer', error: error.message });
   }
 });
