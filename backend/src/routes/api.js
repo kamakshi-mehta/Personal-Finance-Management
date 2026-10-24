@@ -493,13 +493,73 @@ router.get('/ai-insights', protect, async (req, res) => {
 // Expert Financial Knowledge Engine for AI Advisor
 const generateFinancialAdvice = (prompt, { income, outflow, debt, investments }) => {
   const q = prompt.toLowerCase();
-  const surplus = Math.max(0, income - outflow);
+
+  let userIncome = income;
+  let userOutflow = outflow;
+  let userDebt = debt;
+
+  // Extract explicit figures if provided in the question
+  const incomeMatch = prompt.match(/(?:salary|income|earn|earning|make|take home)(?:\s+is|\s+of|\s*[:=])?\s*(?:₹|rs\.?|inr)?\s*(\d+(?:,\d+)*(?:\.\d+)?)\s*(k|lakh|lac)?/i);
+  if (incomeMatch) {
+    let val = parseFloat(incomeMatch[1].replace(/,/g, ''));
+    const unit = (incomeMatch[2] || '').toLowerCase();
+    if (unit === 'k') val *= 1000;
+    if (unit === 'lakh' || unit === 'lac') val *= 100000;
+    if (val > 0) userIncome = val;
+  }
+
+  const expenseMatch = prompt.match(/(?:expense|expenses|spend|spending|outflow|cost)(?:\s+is|\s+are|\s+which is|\s+whhich is|\s+of|\s*[:=])?\s*(?:₹|rs\.?|inr)?\s*(\d+(?:,\d+)*(?:\.\d+)?)\s*(k|lakh|lac)?/i);
+  if (expenseMatch) {
+    let val = parseFloat(expenseMatch[1].replace(/,/g, ''));
+    const unit = (expenseMatch[2] || '').toLowerCase();
+    if (unit === 'k') val *= 1000;
+    if (unit === 'lakh' || unit === 'lac') val *= 100000;
+    if (val > 0) userOutflow = val;
+  }
+
+  const debtMatch = prompt.match(/(?:debt|loan|emi|borrow)(?:\s+is|\s+of|\s*[:=])?\s*(?:₹|rs\.?|inr)?\s*(\d+(?:,\d+)*(?:\.\d+)?)\s*(k|lakh|lac)?/i);
+  if (debtMatch) {
+    let val = parseFloat(debtMatch[1].replace(/,/g, ''));
+    const unit = (debtMatch[2] || '').toLowerCase();
+    if (unit === 'k') val *= 1000;
+    if (unit === 'lakh' || unit === 'lac') val *= 100000;
+    if (val > 0) userDebt = val;
+  }
+
+  const surplus = Math.max(0, userIncome - userOutflow);
+  const savingsRate = userIncome > 0 ? Math.round((surplus / userIncome) * 100) : 0;
+
+  // 0. Customized plan if user specified both salary & expenses in question
+  if (incomeMatch && expenseMatch) {
+    const sipAmount = Math.max(500, Math.round(surplus * 0.4));
+    const emergencyMonthly = Math.max(500, Math.round(surplus * 0.5));
+    const flexAmount = Math.max(0, surplus - sipAmount - emergencyMonthly);
+    const targetBuffer = userOutflow * 3;
+
+    return `Personalized Financial Plan for ₹${userIncome.toLocaleString('en-IN')} Salary:
+
+• Financial Snapshot:
+  - Monthly Earnings: ₹${userIncome.toLocaleString('en-IN')}
+  - Current Monthly Outflow: ₹${userOutflow.toLocaleString('en-IN')} (${Math.round((userOutflow / userIncome) * 100)}% of income)
+  - Net Monthly Surplus: ₹${surplus.toLocaleString('en-IN')} (An impressive ${savingsRate}% Savings Rate!)
+
+• Step 1: Emergency Reserve Fund (Target: ₹${targetBuffer.toLocaleString('en-IN')}):
+  Save ₹${emergencyMonthly.toLocaleString('en-IN')}/month in a high-yield savings account or recurring bank deposit (RD) for ${Math.ceil(targetBuffer / emergencyMonthly)} months to build a full 3-month safety cushion.
+
+• Step 2: Wealth-Building Equity SIP (₹${sipAmount.toLocaleString('en-IN')}/month):
+  Invest ₹${sipAmount.toLocaleString('en-IN')}/month into a low-cost broad Nifty 50 Index Mutual Fund. Over 10 years at a 12% annual return, this modest monthly contribution compounds into approximately ₹${Math.round(sipAmount * 230).toLocaleString('en-IN')}!
+
+• Step 3: Self-Investment & Upskilling (₹${flexAmount > 0 ? flexAmount.toLocaleString('en-IN') : '500'}/month):
+  At ₹${userIncome.toLocaleString('en-IN')}/month, your single highest-return investment is expanding your active earning potential. Allocate ₹500/month for books, tools, or professional certifications to grow your salary to ₹25,000+.
+
+• Pro Tip: Avoid lifestyle inflation. Keeping discretionary expenses under ₹1,000 guarantees that your ₹${surplus.toLocaleString('en-IN')} surplus steadily builds long-term wealth.`;
+  }
 
   // 1. Budgeting / Expense Reduction / Saving
   if (q.includes("cut") || q.includes("expense") || q.includes("save") || q.includes("budget") || q.includes("frugal") || q.includes("spend")) {
     return `Smart Budgeting Strategy for Your Finances:
 
-• Target Expense Ceiling: With your monthly earnings of ₹${income.toLocaleString('en-IN')}, cap your total non-essential expenses to 30% (approx. ₹${Math.round(income * 0.3).toLocaleString('en-IN')}).
+• Target Expense Ceiling: With your monthly earnings of ₹${userIncome.toLocaleString('en-IN')}, cap your total non-essential expenses to 30% (approx. ₹${Math.round(userIncome * 0.3).toLocaleString('en-IN')}).
 • The 24-Hour Rule: Wait 24 hours before making any impulse purchase over ₹1,500. This alone eliminates 40% of non-essential monthly outflows.
 • Subscription & Utility Audit: Review active memberships, streaming apps, and recurring bills. Canceling unused services can save ₹1,000–₹3,000 monthly.
 • Automated Savings: Automate a transfer of your surplus (up to ₹${Math.round(surplus * 0.7).toLocaleString('en-IN')}) into an investment account on salary day before spending.`;
@@ -507,22 +567,22 @@ const generateFinancialAdvice = (prompt, { income, outflow, debt, investments })
 
   // 2. 50/30/20 Rule
   if (q.includes("50/30/20") || q.includes("split") || q.includes("how much to spend")) {
-    return `Personalized 50/30/20 Budget Breakdown (Monthly Income: ₹${income.toLocaleString('en-IN')}):
+    return `Personalized 50/30/20 Budget Breakdown (Monthly Income: ₹${userIncome.toLocaleString('en-IN')}):
 
-1. Needs (50% = ₹${Math.round(income * 0.5).toLocaleString('en-IN')}):
-   Covers essential rent, groceries, medicines, utility bills, and minimum loan commitments. Your current total monthly outflow is ₹${outflow.toLocaleString('en-IN')}.
-2. Wants (30% = ₹${Math.round(income * 0.3).toLocaleString('en-IN')}):
+1. Needs (50% = ₹${Math.round(userIncome * 0.5).toLocaleString('en-IN')}):
+   Covers essential rent, groceries, medicines, utility bills, and minimum loan commitments. Your current total monthly outflow is ₹${userOutflow.toLocaleString('en-IN')}.
+2. Wants (30% = ₹${Math.round(userIncome * 0.3).toLocaleString('en-IN')}):
    Covers dining out, entertainment, shopping, gadgets, and personal leisure.
-3. Savings & Investments (20% = ₹${Math.round(income * 0.2).toLocaleString('en-IN')}):
+3. Savings & Investments (20% = ₹${Math.round(userIncome * 0.2).toLocaleString('en-IN')}):
    Channel this directly into high-yield mutual fund SIPs, PPF/FDs, or debt reduction.`;
   }
 
   // 3. Debt, Loans, EMIs & Credit Cards
   if (q.includes("debt") || q.includes("loan") || q.includes("emi") || q.includes("credit card") || q.includes("cibil") || q.includes("borrow")) {
-    if (debt > 0) {
+    if (userDebt > 0) {
       return `Debt Management & Amortization Plan:
 
-• Current Exposure: You have an outstanding liability of ₹${debt.toLocaleString('en-IN')}.
+• Current Exposure: You have an outstanding liability of ₹${userDebt.toLocaleString('en-IN')}.
 • Recommended Method (Debt Avalanche): Pay the minimum on all loans, but throw all extra surplus cash toward the debt with the highest interest rate (typically credit cards 36–42%, personal loans 12–16%).
 • EMI-to-Income Safety Limit: Ensure your total monthly loan EMIs do not exceed 30–35% of your take-home pay.
 • Prepayment Tip: Making just one extra EMI payment per year on long-term loans can shave 3 to 5 years off your repayment tenure and save lakhs in interest.`;
@@ -536,11 +596,11 @@ const generateFinancialAdvice = (prompt, { income, outflow, debt, investments })
 
   // 4. Emergency Fund
   if (q.includes("emergency") || q.includes("buffer") || q.includes("contingency") || q.includes("liquid") || q.includes("rainy")) {
-    const threeMonths = outflow * 3;
-    const sixMonths = outflow * 6;
+    const threeMonths = userOutflow * 3;
+    const sixMonths = userOutflow * 6;
     return `Emergency Fund Blueprint:
 
-• Recommended Reserve: For your current monthly outflow of ₹${outflow.toLocaleString('en-IN')}, your safety net should be between ₹${threeMonths.toLocaleString('en-IN')} (3 months) and ₹${sixMonths.toLocaleString('en-IN')} (6 months).
+• Recommended Reserve: For your current monthly outflow of ₹${userOutflow.toLocaleString('en-IN')}, your safety net should be between ₹${threeMonths.toLocaleString('en-IN')} (3 months) and ₹${sixMonths.toLocaleString('en-IN')} (6 months).
 • Ideal Allocation Split:
   - 50% in an instant-access High-Yield Savings Account or Sweep-in Bank FD.
   - 50% in an Ultra-Short Term or Liquid Mutual Fund (yields ~6.5–7% with T+1 withdrawal).
