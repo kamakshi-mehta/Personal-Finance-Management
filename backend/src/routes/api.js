@@ -490,6 +490,169 @@ router.get('/ai-insights', protect, async (req, res) => {
   }
 });
 
+// Expert Financial Knowledge Engine for AI Advisor
+const generateFinancialAdvice = (prompt, { income, outflow, debt, investments }) => {
+  const q = prompt.toLowerCase();
+  const surplus = Math.max(0, income - outflow);
+
+  // 1. Budgeting / Expense Reduction / Saving
+  if (q.includes("cut") || q.includes("expense") || q.includes("save") || q.includes("budget") || q.includes("frugal") || q.includes("spend")) {
+    return `Smart Budgeting Strategy for Your Finances:
+
+• Target Expense Ceiling: With your monthly earnings of ₹${income.toLocaleString('en-IN')}, cap your total non-essential expenses to 30% (approx. ₹${Math.round(income * 0.3).toLocaleString('en-IN')}).
+• The 24-Hour Rule: Wait 24 hours before making any impulse purchase over ₹1,500. This alone eliminates 40% of non-essential monthly outflows.
+• Subscription & Utility Audit: Review active memberships, streaming apps, and recurring bills. Canceling unused services can save ₹1,000–₹3,000 monthly.
+• Automated Savings: Automate a transfer of your surplus (up to ₹${Math.round(surplus * 0.7).toLocaleString('en-IN')}) into an investment account on salary day before spending.`;
+  }
+
+  // 2. 50/30/20 Rule
+  if (q.includes("50/30/20") || q.includes("split") || q.includes("how much to spend")) {
+    return `Personalized 50/30/20 Budget Breakdown (Monthly Income: ₹${income.toLocaleString('en-IN')}):
+
+1. Needs (50% = ₹${Math.round(income * 0.5).toLocaleString('en-IN')}):
+   Covers essential rent, groceries, medicines, utility bills, and minimum loan commitments. Your current total monthly outflow is ₹${outflow.toLocaleString('en-IN')}.
+2. Wants (30% = ₹${Math.round(income * 0.3).toLocaleString('en-IN')}):
+   Covers dining out, entertainment, shopping, gadgets, and personal leisure.
+3. Savings & Investments (20% = ₹${Math.round(income * 0.2).toLocaleString('en-IN')}):
+   Channel this directly into high-yield mutual fund SIPs, PPF/FDs, or debt reduction.`;
+  }
+
+  // 3. Debt, Loans, EMIs & Credit Cards
+  if (q.includes("debt") || q.includes("loan") || q.includes("emi") || q.includes("credit card") || q.includes("cibil") || q.includes("borrow")) {
+    if (debt > 0) {
+      return `Debt Management & Amortization Plan:
+
+• Current Exposure: You have an outstanding liability of ₹${debt.toLocaleString('en-IN')}.
+• Recommended Method (Debt Avalanche): Pay the minimum on all loans, but throw all extra surplus cash toward the debt with the highest interest rate (typically credit cards 36–42%, personal loans 12–16%).
+• EMI-to-Income Safety Limit: Ensure your total monthly loan EMIs do not exceed 30–35% of your take-home pay.
+• Prepayment Tip: Making just one extra EMI payment per year on long-term loans can shave 3 to 5 years off your repayment tenure and save lakhs in interest.`;
+    }
+    return `Debt Health Status:
+
+• Congratulations! You are completely debt-free with zero outstanding liabilities.
+• Recommendation: Protect this advantage by maintaining a strong credit score (750+ CIBIL) using a credit card paid in full every month.
+• Wealth Acceleration: Divert what would have been loan EMIs directly into compounding equity SIPs.`;
+  }
+
+  // 4. Emergency Fund
+  if (q.includes("emergency") || q.includes("buffer") || q.includes("contingency") || q.includes("liquid") || q.includes("rainy")) {
+    const threeMonths = outflow * 3;
+    const sixMonths = outflow * 6;
+    return `Emergency Fund Blueprint:
+
+• Recommended Reserve: For your current monthly outflow of ₹${outflow.toLocaleString('en-IN')}, your safety net should be between ₹${threeMonths.toLocaleString('en-IN')} (3 months) and ₹${sixMonths.toLocaleString('en-IN')} (6 months).
+• Ideal Allocation Split:
+  - 50% in an instant-access High-Yield Savings Account or Sweep-in Bank FD.
+  - 50% in an Ultra-Short Term or Liquid Mutual Fund (yields ~6.5–7% with T+1 withdrawal).
+• Golden Rule: Never invest emergency funds in volatile stocks, real estate, or lock-in instruments.`;
+  }
+
+  // 5. SIPs, Mutual Funds & Compounding
+  if (q.includes("sip") || q.includes("mutual fund") || q.includes("index") || q.includes("nifty") || q.includes("compound")) {
+    return `Systematic Investment Plan (SIP) Strategy:
+
+• Power of Rupee-Cost Averaging: Monthly SIPs buy more units when markets dip and fewer when markets peak, eliminating the stress of timing the market.
+• Core Allocation:
+  - 50% in Nifty 50 / Sensex Broad Index Funds (low expense ratio, matches economic growth).
+  - 30% in Flexi-Cap or Mid-Cap Mutual Funds (higher growth potential over 7+ years).
+  - 20% in Sovereign Gold Bonds (SGB) or Fixed Income for stability.
+• Step-up Advantage: Increasing your SIP by just 10% each year with your salary increment doubles your 15-year accumulated wealth.`;
+  }
+
+  // 6. Stocks & Equity Trading
+  if (q.includes("stock") || q.includes("share") || q.includes("equity") || q.includes("trading") || q.includes("market") || q.includes("portfolio")) {
+    return `Stock Market Investment Advisory:
+
+• Avoid Daily Speculation: Studies show over 90% of retail intraday traders lose money. Focus on long-term fundamental investing.
+• Selection Principles: Look for companies with consistent 5-year profit growth, low debt-to-equity ratio (< 0.5), and strong competitive moats (e.g., Tata, Reliance, HDFC, Infosys).
+• Diversification: Never put more than 10% of your total net worth into any single stock.
+• Recommended Timeline: Only invest money in individual equities that you do not need for at least 3 to 5 years.`;
+  }
+
+  // 7. Fixed Deposits (FD) vs Recurring Deposits (RD)
+  if (q.includes("fd") || q.includes("fixed deposit") || q.includes("rd") || q.includes("recurring deposit") || q.includes("safe")) {
+    return `Fixed Deposit & Safe Income Guidelines:
+
+• Role in Portfolio: FDs protect capital from market downturns and provide guaranteed returns (currently 6.8%–7.5% across major Indian banks).
+• FD Laddering Strategy: Instead of locking ₹3,00,000 into one 3-year FD, create three separate FDs of ₹1,00,000 for 1, 2, and 3 years. This guarantees liquidity each year without penalty.
+• Tax Note: FD interest is added to your income and taxed at your slab rate. Consider debt mutual funds or arbitrage funds if you are in the 30% tax bracket.`;
+  }
+
+  // 8. Gold & Commodities
+  if (q.includes("gold") || q.includes("silver") || q.includes("sgb") || q.includes("sovereign")) {
+    return `Gold Investment Strategy:
+
+• Portfolio Weight: Gold acts as an inflation hedge. Keep gold allocation between 5% and 10% of your total net worth.
+• Best Instrument (SGBs): Prefer Sovereign Gold Bonds (SGB) or Gold ETFs over physical jewelry. SGBs pay 2.5% annual interest and offer 100% exemption on capital gains tax when held to maturity.
+• Avoid Physical Jewelry for Investment: Making charges (10–25%) and GST (3%) immediately reduce physical gold returns.`;
+  }
+
+  // 9. Real Estate & Housing
+  if (q.includes("real estate") || q.includes("property") || q.includes("house") || q.includes("home loan") || q.includes("rent vs buy")) {
+    return `Real Estate & Housing Analysis:
+
+• Rent vs. Buy Rule of Thumb: If the annual rent is less than 3–3.5% of the property purchase cost, renting and investing the surplus into equity mutual funds builds significantly higher wealth.
+• Home Loan Guideline: Keep your monthly home loan EMI under 35% of your net monthly earnings.
+• Down Payment Target: Save at least 20–25% as down payment to avoid severe loan burdens.`;
+  }
+
+  // 10. Tax Planning (Income Tax, 80C, Regimes)
+  if (q.includes("tax") || q.includes("80c") || q.includes("80d") || q.includes("regime") || q.includes("itr") || q.includes("tds")) {
+    return `Tax Optimization Roadmap:
+
+• New vs. Old Tax Regime:
+  - New Regime: Best if you earn up to ₹7–7.5 Lakhs (zero tax under rebate) or don't have large deductions (home loan, HRA).
+  - Old Regime: Better if you claim HRA, ₹1.5L under 80C (ELSS, PPF, EPF), and ₹25k under 80D (Health Insurance).
+• ELSS Advantage: Equity Linked Savings Schemes have the shortest lock-in (3 years) among all 80C instruments and provide higher long-term compounding.`;
+  }
+
+  // 11. Retirement & FIRE
+  if (q.includes("retire") || q.includes("fire") || q.includes("pension") || q.includes("nps")) {
+    return `Retirement & Financial Independence Planning:
+
+• The Rule of 72: Divide 72 by your expected annual return to find how fast your money doubles (e.g., at 12% equity return, money doubles every 6 years).
+• The 25x Target: Aim to accumulate 25 to 30 times your annual living expenses before retiring early.
+• Action for Your 20s/30s: Starting a ₹5,000 monthly SIP at age 22 builds approx. ₹3.5 Crore by age 55; starting at 32 yields less than ₹1.1 Crore. Time in the market is your greatest asset.`;
+  }
+
+  // 12. Insurance (Term & Health)
+  if (q.includes("insurance") || q.includes("term") || q.includes("mediclaim") || q.includes("policy") || q.includes("ulip")) {
+    return `Insurance & Protection Strategy:
+
+• Pure Term Insurance: Secure a term life insurance policy with a sum assured equal to 10–15 times your annual salary. Choose a plan up to age 60–65 only.
+• Health Insurance: Do not rely solely on employer corporate insurance. Maintain an individual or family floater health cover of at least ₹10–15 Lakhs with super top-up.
+• Warning on ULIPs / Endowment Plans: Avoid combining investment with insurance. Returns on traditional LIC/endowment policies rarely beat 4–5% inflation.`;
+  }
+
+  // 13. Crypto & Speculative Assets
+  if (q.includes("crypto") || q.includes("bitcoin") || q.includes("speculat")) {
+    return `Cryptocurrency & High-Risk Asset Advisory:
+
+• Strict Cap: Never allocate more than 3% to 5% of your total investment portfolio to crypto or speculative digital assets.
+• Volatility Warning: Crypto markets experience 50–80% drawdowns. Only invest capital you are completely prepared to lose without impacting your lifestyle.
+• Tax Implications: In India, cryptocurrency gains are taxed at a flat 30% with no loss offsetting, plus 1% TDS on every transaction.`;
+  }
+
+  // 14. Salary Hike / Bonus / Windfall
+  if (q.includes("salary") || q.includes("bonus") || q.includes("hike") || q.includes("increment") || q.includes("raise")) {
+    return `Managing Income Growth & Bonuses:
+
+• Avoid Lifestyle Inflation: When you receive a bonus or raise, avoid immediately upgrading cars, gadgets, or rent.
+• The 50% Rule for Raises: Allocate 50% of any increment directly into expanding your monthly SIPs and loan prepayments, and enjoy the remaining 50% for improved lifestyle.
+• Compounding Impact: Step up your monthly SIP contributions proportionally to accelerate your financial freedom date by years.`;
+  }
+
+  // 15. Comprehensive Fallback for Any Other Financial Query
+  return `Personal Financial Consultation:
+
+• Current Snapshot: Based on your recorded monthly income of ₹${income.toLocaleString('en-IN')} and living outflows of ₹${outflow.toLocaleString('en-IN')}, you generate a monthly surplus of ₹${surplus.toLocaleString('en-IN')}.
+• Key Recommendation for "${prompt.trim()}":
+  1. Priority 1: Ensure you hold 3 to 6 months of living costs in a liquid bank balance or sweep-in FD.
+  2. Priority 2: Maintain on-time payments on all debt commitments (${debt > 0 ? `active debt: ₹${debt.toLocaleString('en-IN')}` : 'currently debt-free'}).
+  3. Priority 3: Systematically direct your monthly surplus into diversified equity index funds (Nifty 50) and fixed deposits.
+• Rule of Thumb: Focus on consistency over timing—disciplined monthly asset accumulation is the proven path to lasting wealth.`;
+};
+
 // Interactive AI Prompt API
 router.post('/ai-ask', protect, async (req, res) => {
   try {
@@ -498,18 +661,18 @@ router.post('/ai-ask', protect, async (req, res) => {
       return res.status(400).json({ message: 'Please provide a valid question.' });
     }
 
-    const { income, outflow, debt } = await getFinancialSummary(req.user._id);
+    const { income, outflow, debt, investments } = await getFinancialSummary(req.user._id);
 
-    // 1. Try FastAPI microservice
+    // 1. Try FastAPI microservice (if running)
     const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
 
       const response = await fetch(`${aiServiceUrl}/api/v1/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt.trim(), income, outflow, investments: 0, debt }),
+        body: JSON.stringify({ prompt: prompt.trim(), income, outflow, investments, debt }),
         signal: controller.signal
       });
 
@@ -519,27 +682,11 @@ router.post('/ai-ask', protect, async (req, res) => {
         return res.json(await response.json());
       }
     } catch {
-      // Continue to built-in advisor
+      // Continue to built-in expert advisor
     }
 
-    // 2. Built-in Financial Advisor Rules
-    const q = prompt.toLowerCase();
-    let answer = "";
-    if (q.includes("cut") || q.includes("expense") || q.includes("save") || q.includes("budget")) {
-      answer = `To optimize your monthly budget, audit recurring subscriptions, cap discretionary spending at 30% of your income (₹${Math.round(income * 0.3).toLocaleString('en-IN')}), and automate a 20% transfer to your savings on payday.`;
-    } else if (q.includes("debt") || q.includes("loan") || q.includes("emi")) {
-      answer = debt > 0
-        ? `With ₹${debt.toLocaleString('en-IN')} in active debt, prioritize paying off high-interest loans first while keeping a basic emergency fund. Avoid taking new loans until your EMI ratio is under 30%.`
-        : `You are currently debt-free! Channel your monthly cash surplus directly into compounding assets like equity SIPs, index mutual funds, and fixed deposits.`;
-    } else if (q.includes("emergency") || q.includes("buffer") || q.includes("fund")) {
-      answer = `Maintain 3 to 6 months of living expenses in an accessible emergency fund. Based on your monthly outflow of ₹${outflow.toLocaleString('en-IN')}, your target buffer is approximately ₹${(outflow * 6).toLocaleString('en-IN')}.`;
-    } else if (q.includes("sip") || q.includes("invest") || q.includes("stock") || q.includes("fd")) {
-      answer = `For a balanced portfolio, diversify your savings: allocate 60% into low-cost index mutual funds (like Nifty 50) via monthly SIPs for long-term growth, and 40% into secure fixed deposits for capital safety.`;
-    } else if (q.includes("50/30/20") || q.includes("rule")) {
-      answer = `Following the 50/30/20 rule for your monthly income of ₹${income.toLocaleString('en-IN')}: 50% (₹${Math.round(income * 0.5).toLocaleString('en-IN')}) for Needs, 30% (₹${Math.round(income * 0.3).toLocaleString('en-IN')}) for Wants, and 20% (₹${Math.round(income * 0.2).toLocaleString('en-IN')}) into Savings and Investments.`;
-    } else {
-      answer = `Review your cash flow regularly: With an estimated monthly income of ₹${income.toLocaleString('en-IN')} and outflows of ₹${outflow.toLocaleString('en-IN')}, investing your surplus systematically into diversified index funds and FDs will build lasting wealth.`;
-    }
+    // 2. Generate comprehensive expert financial advice
+    const answer = generateFinancialAdvice(prompt, { income, outflow, debt, investments });
 
     return res.json({ answer, timestamp: new Date() });
   } catch (error) {
